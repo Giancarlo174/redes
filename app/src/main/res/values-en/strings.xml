@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Easy Turn</string>
+    <string name="button_customer">I am a Customer</string>
+    <string name="button_employee">I am an Employee</string>
+    <string name="login_title">Login</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="login_button">Login</string>
+    <string name="admin_title">Administrator Panel</string>
+    <string name="call_next_button">Call Next</string>
+    <string name="cancel_turn_button">Cancel Turn</string>
+    <string name="your_turn_title">Your Turn</string>
+    <string name="turn_number_placeholder">A-101</string>
+    <string name="info_label">Information:</string>
+    <string name="info_content_placeholder">- You will be called at counter 3.</string>
+    <string name="time_label">Estimated waiting time:</string>
+    <string name="time_value_placeholder">15 minutes</string>
+    <string name="change_language_button">Language</string>
+    <string name="generate_ticket">Generate Ticket</string>
+</resources>

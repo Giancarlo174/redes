@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Turno Fácil</string>
+    <string name="button_customer">Soy Cliente</string>
+    <string name="button_employee">Soy Empleado</string>
+    <string name="login_title">Inicio de Sesión</string>
+    <string name="email_hint">Correo electrónico</string>
+    <string name="password_hint">Contraseña</string>
+    <string name="login_button">Iniciar Sesión</string>
+    <string name="admin_title">Panel del Administrador</string>
+    <string name="call_next_button">Llamar Siguiente</string>
+    <string name="cancel_turn_button">Cancelar Turno</string>
+    <string name="your_turn_title">Su Turno</string>
+    <string name="turn_number_placeholder">A-101</string>
+    <string name="info_label">Información:</string>
+    <string name="info_content_placeholder">- Será llamado en el mostrador 3.</string>
+    <string name="time_label">Tiempo estimado de espera:</string>
+    <string name="time_value_placeholder">15 minutos</string>
+    <string name="change_language_button">Idioma</string>
+    <string name="generate_ticket">Generar Ticket</string>
+</resources>
