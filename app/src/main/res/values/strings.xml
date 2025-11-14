@@ -1,16 +1,14 @@
 <resources>
     <string name="app_name">Turno Fácil</string>
     <string name="slogan">Gestiona turnos de forma eficiente</string>
-    <string name="button_customer">Soy Cliente</string>
-    <string name="button_employee">Soy Empleado</string>
+    <string name="button_login">Ingresar</string>
     <string name="login_title">Inicio de Sesión</string>
     <string name="email_hint">Correo electrónico</string>
     <string name="password_hint">Contraseña</string>
-    <string name="login_button">Iniciar Sesión</string>
     <string name="admin_title">Panel del Administrador</string>
     <string name="call_next_button">Llamar Siguiente</string>
     <string name="cancel_turn_button">Cancelar Turno</string>
-    <string name="your_turn_title">Su Turno</string>
+    <string name="your_turn_title">Su número de turno es</string>
     <string name="turn_number_placeholder">A-101</string>
     <string name="info_label">Información:</string>
     <string name="info_content_placeholder">- Será llamado en el mostrador 3.</string>

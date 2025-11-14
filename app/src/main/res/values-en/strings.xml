@@ -1,16 +1,14 @@
 <resources>
     <string name="app_name">Easy Turn</string>
     <string name="slogan">Manage turns efficiently</string>
-    <string name="button_customer">I am a Customer</string>
-    <string name="button_employee">I am an Employee</string>
+    <string name="button_login">Login</string>
     <string name="login_title">Login</string>
     <string name="email_hint">Email</string>
     <string name="password_hint">Password</string>
-    <string name="login_button">Login</string>
     <string name="admin_title">Administrator Panel</string>
     <string name="call_next_button">Call Next</string>
     <string name="cancel_turn_button">Cancel Turn</string>
-    <string name="your_turn_title">Your Turn</string>
+    <string name="your_turn_title">Your turn number is</string>
     <string name="turn_number_placeholder">A-101</string>
     <string name="info_label">Information:</string>
     <string name="info_content_placeholder">- You will be called at counter 3.</string>

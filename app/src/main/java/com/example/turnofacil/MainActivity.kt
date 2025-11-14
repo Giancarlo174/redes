@@ -12,8 +12,7 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val buttonCustomer: Button = findViewById(R.id.buttonCustomer)
-        val buttonEmployee: Button = findViewById(R.id.buttonEmployee)
+        val buttonEmployee: Button = findViewById(R.id.buttonLogin)
         val buttonChangeLanguage: ImageButton = findViewById(R.id.buttonChangeLanguage)
 
         buttonCustomer.setOnClickListener {
