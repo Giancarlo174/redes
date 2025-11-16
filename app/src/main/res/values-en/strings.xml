@@ -1,19 +1,31 @@
 <resources>
+    <!-- Home Screen -->
     <string name="app_name">Easy Turn</string>
     <string name="slogan">Manage turns efficiently</string>
     <string name="button_login">Login</string>
     <string name="login_title">Login</string>
     <string name="email_hint">Email</string>
     <string name="password_hint">Password</string>
+
+    <!-- Administrator Panel -->
     <string name="admin_title">Administrator Panel</string>
     <string name="call_next_button">Call Next</string>
     <string name="cancel_turn_button">Cancel Turn</string>
+    <string name="stat_waiting">Waiting</string>
+    <string name="stat_attended">Attended</string>
+    <string name="stat_canceled">Canceled</string>
+    <string name="stat_total">Total</string>
+
+    <!-- Ticket Screen -->
     <string name="your_turn_title">Your turn number is</string>
     <string name="turn_number_placeholder">A-101</string>
     <string name="info_label">Information:</string>
-    <string name="info_content_placeholder">- You will be called at counter 3.</string>
-    <string name="time_label">Estimated waiting time:</string>
-    <string name="time_value_placeholder">15 minutes</string>
-    <string name="change_language_button">Language</string>
+    <string name="info_content_placeholder">⏰ 3 turns left for your turn</string>
+    <string name="status_content_placeholder">In attention</string>
+    <string name="new_button">Take a new turn</string>
+
+    <!-- Ticket Generation -->
     <string name="generate_ticket">Generate Ticket</string>
+    <string name="take_turn">Take a Turn</string>
+    <string name="slogan2">Avoid the line. Press the button and get your turn number.</string>
 </resources>
