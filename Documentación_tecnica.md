@@ -25,7 +25,7 @@
 - **Nombre de la aplicación:** Turno Fácil
 - **Package:** com.example.turnofacil
 - **Versión:** 1.0
-- **Lenguaje de programación:** Kotlin
+- **Lenguajes de programación:** Kotlin y Java
 - **Plataforma:** Android
 - **SDK mínimo:** Android 7.0 (API 24)
 - **SDK objetivo:** Android 14+ (API 36)
@@ -42,24 +42,33 @@ La aplicación sigue una arquitectura de **Activities** simple, apropiada para s
 
 ```
 MainActivity (Pantalla Principal)
-    ├── CustomerActivity (Módulo de Cliente)
-    └── LoginActivity (Autenticación)
-            └── AdminActivity (Panel de Administración)
+    ├── CustomerActivity (Módulo de Cliente con RecyclerView)
+    └── AdminActivity (Panel de Administración)
 ```
 
 ### Componentes de la Arquitectura
 
 1. **Capa de Presentación (UI):**
    - Activities para cada pantalla
+   - RecyclerView con adaptadores personalizados
    - Layouts XML con ConstraintLayout
-   - Material Design Components
+   - Material Design Components (CardView, MaterialCardView)
 
-2. **Capa de Lógica de Negocio:**
+2. **Capa de Modelo de Datos:**
+   - Data classes en Kotlin (`Turn`)
+   - Representación de entidades del dominio
+
+3. **Capa de Adaptadores:**
+   - `TurnAdapter`: Gestiona la visualización de turnos en RecyclerView
+   - ViewHolders para eficiencia de renderizado
+
+4. **Capa de Lógica de Negocio:**
    - Actualmente implementada dentro de cada Activity
    - Gestión de navegación entre pantallas
    - Control de idiomas (i18n)
+   - Gestión de estados de turnos
 
-3. **Capa Base:**
+5. **Capa Base:**
    - `BaseActivity`: Clase base que proporciona funcionalidad común
 
 ---
@@ -96,9 +105,10 @@ redes/
 │   │   │   ├── java/com/example/turnofacil/
 │   │   │   │   ├── MainActivity.kt           # Pantalla principal
 │   │   │   │   ├── BaseActivity.kt           # Actividad base
-│   │   │   │   ├── LoginActivity.kt          # Autenticación
-│   │   │   │   ├── AdminActivity.kt          # Panel de administrador
-│   │   │   │   └── CustomerActivity.kt       # Panel de cliente
+│   │   │   │   ├── AdminActivity.java        # Panel de administrador (Java)
+│   │   │   │   ├── CustomerActivity.kt       # Panel de cliente
+│   │   │   │   ├── Turn.kt                   # Modelo de datos de turno
+│   │   │   │   └── TurnAdapter.kt            # Adaptador para RecyclerView
 │   │   │   ├── res/
 │   │   │   │   ├── layout/                   # Diseños de interfaz
 │   │   │   │   ├── values/                   # Recursos (español)
@@ -128,9 +138,9 @@ redes/
 **Propósito:** Pantalla principal que actúa como punto de entrada de la aplicación.
 
 **Funcionalidades:**
-- Presenta dos opciones de acceso: Cliente y Empleado
+- Presenta dos opciones de acceso: Cliente y Administrador
 - Botón para cambiar el idioma de la aplicación
-- Navegación hacia `CustomerActivity` o `LoginActivity`
+- Navegación hacia `CustomerActivity` o `AdminActivity`
 
 **Métodos principales:**
 ```kotlin
@@ -139,9 +149,13 @@ setLocale(languageCode: String): Cambia el idioma de la aplicación
 ```
 
 **Componentes UI:**
-- `buttonCustomer`: Botón para acceso como cliente
-- `buttonEmployee`: Botón para acceso como empleado
-- `buttonChangeLanguage`: Botón para cambiar idioma
+- `buttonCustomer`: Botón para acceso como cliente ("Tomar Turno")
+- `buttonLogin`: Botón para acceso de administrador ("Ingresar")
+- `buttonChangeLanguage`: ImageButton para cambiar idioma
+
+**Cambios recientes:**
+- Se simplificó el flujo eliminando la pantalla de login intermedia
+- Navegación directa desde MainActivity a AdminActivity
 
 ---
 
@@ -157,65 +171,117 @@ setLocale(languageCode: String): Cambia el idioma de la aplicación
 **Herencia:**
 ```
 AppCompatActivity
-    └── BaseActivity
-            ├── MainActivity
-            ├── LoginActivity
-            └── AdminActivity
+    ├── BaseActivity
+    │       └── MainActivity
+    ├── AdminActivity (Java)
+    └── CustomerActivity (Kotlin)
 ```
 
----
-
-### 3. LoginActivity
-**Ubicación:** `app/src/main/java/com/example/turnofacil/LoginActivity.kt`
-
-**Propósito:** Pantalla de autenticación para empleados/administradores.
-
-**Funcionalidades:**
-- Captura credenciales de inicio de sesión
-- Validación de acceso (pendiente de implementar)
-- Navegación hacia `AdminActivity` tras autenticación exitosa
-- Botón "Atrás" habilitado en la ActionBar
-
-**Estado actual:**
-- La lógica de validación está pendiente de implementación
-- Actualmente permite acceso directo sin validación
+**Nota:** AdminActivity fue migrado a Java y ya no hereda de BaseActivity.
 
 ---
 
-### 4. AdminActivity
-**Ubicación:** `app/src/main/java/com/example/turnofacil/AdminActivity.kt`
+### 3. AdminActivity
+**Ubicación:** `app/src/main/java/com/example/turnofacil/AdminActivity.java`
+
+**Lenguaje:** Java
 
 **Propósito:** Panel de control para administradores del sistema de turnos.
 
 **Funcionalidades:**
 - Gestión de turnos activos
+- Visualización de estadísticas (en espera, atendidos, cancelados, total)
 - Llamar al siguiente turno
 - Cancelar turnos
-- Botón "Atrás" habilitado
 
 **Componentes UI (según layout):**
-- Botón para llamar al siguiente turno
-- Botón para cancelar turno actual
-- Área de visualización de información
+- Botones para llamar siguiente turno y cancelar
+- Contadores de estadísticas con iconos
+- Área de visualización de información del turno actual
+
+**Cambios recientes:**
+- Migrado de Kotlin a Java
+- Ya no hereda de BaseActivity
+- Acceso directo desde MainActivity (sin pantalla de login)
 
 ---
 
-### 5. CustomerActivity
+### 4. CustomerActivity
 **Ubicación:** `app/src/main/java/com/example/turnofacil/CustomerActivity.kt`
 
 **Propósito:** Interfaz para clientes que solicitan o consultan su turno.
 
 **Funcionalidades:**
+- Visualización de lista de turnos mediante RecyclerView
 - Generación de ticket de turno
 - Visualización del número de turno asignado
-- Muestra tiempo estimado de espera
-- Información sobre el mostrador de atención
+- Indicador visual del turno en atención
+- Botón para tomar nuevo turno
 
 **Componentes UI (según layout):**
-- Botón para generar ticket
-- Visualización del número de turno
-- Tiempo estimado de espera
-- Información adicional
+- RecyclerView para mostrar lista de turnos
+- TurnAdapter para gestionar los items
+- Botón para tomar nuevo turno
+- Cards con estados diferenciados (en atención vs en espera)
+
+**Implementación técnica:**
+```kotlin
+val recyclerView: RecyclerView = findViewById(R.id.recyclerViewTurns)
+recyclerView.layoutManager = LinearLayoutManager(this)
+
+val turns = listOf(
+    Turn("A01", "En atención", isAttending = true),
+    Turn("B02", "En espera"),
+    Turn("C03", "En espera")
+)
+
+val adapter = TurnAdapter(turns)
+recyclerView.adapter = adapter
+```
+
+---
+
+### 5. Turn (Modelo de Datos)
+**Ubicación:** `app/src/main/java/com/example/turnofacil/Turn.kt`
+
+**Propósito:** Clase de datos que representa un turno en el sistema.
+
+**Propiedades:**
+```kotlin
+data class Turn(
+    val turnNumber: String,      // Número del turno (ej: "A01", "B02")
+    val status: String,           // Estado del turno ("En atención", "En espera")
+    val isAttending: Boolean = false  // Indica si está siendo atendido
+)
+```
+
+**Uso:**
+- Se utiliza para representar cada turno en la lista de CustomerActivity
+- Permite gestionar el estado visual de cada turno
+- Base para la futura integración con base de datos
+
+---
+
+### 6. TurnAdapter
+**Ubicación:** `app/src/main/java/com/example/turnofacil/TurnAdapter.kt`
+
+**Propósito:** Adaptador para RecyclerView que gestiona la visualización de turnos.
+
+**Funcionalidades:**
+- Vincula datos de `Turn` con el layout `item_turn.xml`
+- Gestiona el ViewHolder pattern para eficiencia
+- Aplica estilos dinámicos según el estado del turno
+
+**Lógica de presentación:**
+- **Turno en atención:** Fondo verde suave, borde verde, texto verde
+- **Turno en espera:** Fondo blanco, borde gris claro, texto gris
+
+**Métodos principales:**
+```kotlin
+onCreateViewHolder(): Crea la vista del item
+onBindViewHolder(): Vincula datos con la vista
+bind(turn: Turn): Aplica estilos según el estado
+```
 
 ---
 
@@ -223,32 +289,34 @@ AppCompatActivity
 
 ```mermaid
 graph TD
-    A[MainActivity] -->|Soy Cliente| B[CustomerActivity]
-    A -->|Soy Empleado| C[LoginActivity]
-    C -->|Login Exitoso| D[AdminActivity]
+    A[MainActivity] -->|Tomar Turno| B[CustomerActivity]
+    A -->|Ingresar Admin| C[AdminActivity]
     B -->|Botón Atrás| A
     C -->|Botón Atrás| A
-    D -->|Botón Atrás| C
+    B -->|RecyclerView| D[TurnAdapter]
+    D -->|Muestra| E[Lista de Turnos]
 ```
 
 ### Descripción del Flujo
 
 1. **Inicio de la Aplicación:**
    - La app inicia en `MainActivity`
-   - Usuario elige entre "Soy Cliente" o "Soy Empleado"
+   - Usuario elige entre "Tomar Turno" o "Ingresar" (administrador)
 
 2. **Flujo de Cliente:**
-   - Usuario selecciona "Soy Cliente"
+   - Usuario selecciona "Tomar Turno"
    - Navegación a `CustomerActivity`
-   - Usuario puede generar un ticket
+   - Visualiza lista de turnos mediante RecyclerView
+   - Puede ver el turno en atención destacado en verde
+   - Puede tomar un nuevo turno
    - Puede regresar a la pantalla principal
 
-3. **Flujo de Empleado/Administrador:**
-   - Usuario selecciona "Soy Empleado"
-   - Navegación a `LoginActivity`
-   - Usuario ingresa credenciales
-   - Tras autenticación, accede a `AdminActivity`
-   - Puede gestionar turnos
+3. **Flujo de Administrador:**
+   - Usuario selecciona "Ingresar" (botón de administrador)
+   - Navegación directa a `AdminActivity` (sin autenticación intermedia)
+   - Visualiza estadísticas de turnos
+   - Puede llamar al siguiente turno
+   - Puede cancelar turnos
    - Puede regresar usando el botón "Atrás"
 
 ---
@@ -488,8 +556,11 @@ interface TurnoApiService {
 ### 4. Estructura de Código
 - ✅ Separación de responsabilidades
 - ✅ Clase base para funcionalidad compartida
-- ✅ Uso de Kotlin como lenguaje moderno
+- ✅ Uso de Kotlin y Java (arquitectura híbrida)
 - ✅ Nomenclatura clara y consistente
+- ✅ Patrón ViewHolder con RecyclerView
+- ✅ Data classes para modelos de datos
+- ✅ Adaptadores personalizados para listas
 
 ---
 
@@ -530,6 +601,8 @@ android {
 | material | Variable | Material Design Components |
 | androidx.constraintlayout | Variable | Sistema de layouts flexible |
 | androidx.activity | Variable | Gestión de actividades |
+| androidx.recyclerview | Variable | Listas eficientes con RecyclerView |
+| androidx.cardview | Variable | Cards para UI con Material Design |
 
 ### Permisos de la Aplicación
 Actualmente, la aplicación no requiere permisos especiales en el `AndroidManifest.xml`.
@@ -803,13 +876,15 @@ _Pendiente de definir_
 
 | Versión | Fecha | Cambios |
 |---------|-------|---------|
+| 1.2 | 17/11/2025 | Implementación de RecyclerView, modelo Turn, TurnAdapter. Eliminación de LoginActivity. Migración de AdminActivity a Java. Nuevos recursos visuales y colores |
 | 1.1 | 11/11/2025 | Agregado modelo completo de base de datos con 3 tablas principales |
 | 1.0 | 11/11/2025 | Versión inicial con funcionalidades básicas |
 
 ---
 
-**Última actualización:** 11 de noviembre de 2025
+**Última actualización:** 17 de noviembre de 2025
 
-**Autor:** Giancarlo174
+**Autor:** Hunter2801a (Adrian Jimenez M.)
 
-**Documento elaborado por:** GitHub Copilot
+**Documento elaborado y verificado por:** Hunter2801a + GitHub Copilot
+
