@@ -1,578 +1,333 @@
-# Documentación Técnica - Turno Fácil
 
-## Índice
-1. [Información General](#información-general)
-2. [Arquitectura del Sistema](#arquitectura-del-sistema)
-3. [Requisitos del Sistema](#requisitos-del-sistema)
-4. [Estructura del Proyecto](#estructura-del-proyecto)
-5. [Componentes Principales](#componentes-principales)
-6. [Flujo de Navegación](#flujo-de-navegación)
-7. [Modelo de Base de Datos](#modelo-de-base-de-datos)
-8. [Características Implementadas](#características-implementadas)
-9. [Configuración del Proyecto](#configuración-del-proyecto)
-10. [Guía de Compilación](#guía-de-compilación)
-11. [Internacionalización](#internacionalización)
-12. [Mejoras Futuras](#mejoras-futuras)
+# Documentación Técnica – Turno Fácil
 
----
+## 1. Información General
 
-## Información General
+Turno Fácil es una aplicación móvil Android diseñada para gestionar turnos en establecimientos como bancos, consultorios médicos y oficinas públicas. Permite a los clientes solicitar y consultar turnos, y a los administradores gestionar el flujo de atención.
 
-### Descripción del Proyecto
-**Turno Fácil** es una aplicación móvil Android diseñada para gestionar turnos de forma eficiente en establecimientos que requieren organización de filas de espera, como bancos, consultorios médicos, oficinas gubernamentales, etc.
+**Datos del proyecto:**
 
-### Datos del Proyecto
-- **Nombre de la aplicación:** Turno Fácil
-- **Package:** com.example.turnofacil
-- **Versión:** 1.0
-- **Lenguajes de programación:** Kotlin y Java
-- **Plataforma:** Android
-- **SDK mínimo:** Android 7.0 (API 24)
-- **SDK objetivo:** Android 14+ (API 36)
+-   Nombre: Turno Fácil
+    
+-   Package: com.example.turnofacil
+    
+-   Versión: 1.0
+    
+-   Lenguajes usados: Kotlin y Java
+    
+-   Plataforma: Android
+    
+-   SDK mínimo: 24 (Android 7.0)
+    
+-   SDK objetivo: 36 (Android 14)
+    
 
-### Propósito
-Facilitar la gestión de turnos tanto para clientes que necesitan esperar su turno como para empleados/administradores que gestionan el flujo de atención.
+**Propósito:**  
+Facilitar la administración de turnos, mejorar la organización y ofrecer una experiencia de usuario simple y eficiente.
 
----
+---------
+## 2. Arquitectura del Sistema
 
-## Arquitectura del Sistema
+La aplicación utiliza una arquitectura basada en Activities, adecuada para proyectos Android de bajo y mediano alcance.
 
-### Patrón de Diseño
-La aplicación sigue una arquitectura de **Activities** simple, apropiada para su alcance actual:
+**Diagrama general:**
 
 ```
-MainActivity (Pantalla Principal)
-    ├── CustomerActivity (Módulo de Cliente con RecyclerView)
-    └── AdminActivity (Panel de Administración)
+MainActivity
+ ├── CustomerActivity
+ └── AdminActivity
 ```
 
-### Componentes de la Arquitectura
+### Componentes de la arquitectura
 
-1. **Capa de Presentación (UI):**
-   - Activities para cada pantalla
-   - RecyclerView con adaptadores personalizados
-   - Layouts XML con ConstraintLayout
-   - Material Design Components (CardView, MaterialCardView)
+1.  **Presentación (UI)**
+    
+    -   Activities para cada pantalla
+        
+    -   ConstraintLayout como base de diseño
+        
+    -   Uso de RecyclerView y CardView
+        
+    -   Recursos multi-idioma (values y values-en)
+        
+2.  **Modelo de datos**
+    
+    -   Data class Turn
+        
+    -   Entidades simples y serializables
+        
+3.  **Adaptadores**
+    
+    -   TurnAdapter para la lista de turnos en CustomerActivity
+        
+4.  **Lógica de negocio**
+    
+    -   Manejo de turnos en memoria
+        
+    -   Estados del turno
+        
+    -   Navegación entre pantallas
+        
+    -   Cambio de idioma
+        
+5.  **Capa Base**
+    
+    -   BaseActivity para comportamiento común (botón atrás)
+        
 
-2. **Capa de Modelo de Datos:**
-   - Data classes en Kotlin (`Turn`)
-   - Representación de entidades del dominio
+----------
 
-3. **Capa de Adaptadores:**
-   - `TurnAdapter`: Gestiona la visualización de turnos en RecyclerView
-   - ViewHolders para eficiencia de renderizado
+## 3. Requisitos del Sistema
 
-4. **Capa de Lógica de Negocio:**
-   - Actualmente implementada dentro de cada Activity
-   - Gestión de navegación entre pantallas
-   - Control de idiomas (i18n)
-   - Gestión de estados de turnos
+### Requisitos de hardware
 
-5. **Capa Base:**
-   - `BaseActivity`: Clase base que proporciona funcionalidad común
+-   Dispositivo Android
+    
+-   Mínimo 2GB de RAM
+    
+-   Al menos 50MB de almacenamiento libre
+    
 
----
+### Requisitos de software
 
-## Requisitos del Sistema
+-   Android 7.0 o superior
+    
+-   Android SDK 24 a 36
+    
+-   Java 11 o superior
+    
+-   Kotlin 1.9+
+    
+-   Gradle 8.x
+    
+-   Android Studio Hedgehog o superior
+    
 
-### Requisitos de Hardware
-- Dispositivo Android con al menos 2GB de RAM
-- 50MB de espacio de almacenamiento disponible
-- Pantalla táctil
+----------
 
-### Requisitos de Software
-- Sistema Operativo: Android 7.0 (Nougat) o superior
-- Android SDK 36
-- Java 11 o superior
-
-### Herramientas de Desarrollo
-- **IDE:** Android Studio (versión recomendada: Hedgehog o superior)
-- **Build System:** Gradle 8.x
-- **Lenguaje:** Kotlin 1.9+
-- **Plugins Gradle:**
-  - Android Application Plugin
-  - Kotlin Android Plugin
-
----
-
-## Estructura del Proyecto
+## 4. Estructura del Proyecto
 
 ```
 redes/
 ├── app/
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/com/example/turnofacil/
-│   │   │   │   ├── MainActivity.kt           # Pantalla principal
-│   │   │   │   ├── BaseActivity.kt           # Actividad base
-│   │   │   │   ├── AdminActivity.java        # Panel de administrador (Java)
-│   │   │   │   ├── CustomerActivity.kt       # Panel de cliente
-│   │   │   │   ├── Turn.kt                   # Modelo de datos de turno
-│   │   │   │   └── TurnAdapter.kt            # Adaptador para RecyclerView
-│   │   │   ├── res/
-│   │   │   │   ├── layout/                   # Diseños de interfaz
-│   │   │   │   ├── values/                   # Recursos (español)
-│   │   │   │   ├── values-en/                # Recursos (inglés)
-│   │   │   │   ├── drawable/                 # Iconos e imágenes
-│   │   │   │   └── mipmap-*/                 # Iconos de launcher
-│   │   │   └── AndroidManifest.xml           # Manifiesto de la app
-│   │   ├── androidTest/                      # Tests instrumentados
-│   │   └── test/                             # Tests unitarios
-│   ├── build.gradle.kts                      # Configuración de módulo
-│   └── proguard-rules.pro                    # Reglas de ofuscación
+│   ├── src/main/java/com/example/turnofacil/
+│   │   ├── MainActivity.kt
+│   │   ├── BaseActivity.kt
+│   │   ├── AdminActivity.java
+│   │   ├── CustomerActivity.kt
+│   │   ├── Turn.kt
+│   │   └── TurnAdapter.kt
+│   ├── res/
+│   │   ├── layout/
+│   │   ├── values/
+│   │   ├── values-en/
+│   │   ├── drawable/
+│   │   └── mipmap-*/
+│   └── AndroidManifest.xml
 ├── gradle/
-│   ├── libs.versions.toml                    # Catálogo de versiones
-│   └── wrapper/                              # Gradle Wrapper
-├── build.gradle.kts                          # Configuración del proyecto
-├── settings.gradle.kts                       # Configuración de módulos
-└── README.md                                 # Documentación básica
+├── build.gradle.kts
+├── settings.gradle.kts
+└── README.md
 ```
 
----
+----------
 
-## Componentes Principales
+## 5. Componentes Principales
 
-### 1. MainActivity
-**Ubicación:** `app/src/main/java/com/example/turnofacil/MainActivity.kt`
+### 5.1 MainActivity
 
-**Propósito:** Pantalla principal que actúa como punto de entrada de la aplicación.
+Pantalla principal de la aplicación. Desde aquí el usuario puede seleccionar si es cliente o administrador y cambiar el idioma del sistema.
 
-**Funcionalidades:**
-- Presenta dos opciones de acceso: Cliente y Administrador
-- Botón para cambiar el idioma de la aplicación
-- Navegación hacia `CustomerActivity` o `AdminActivity`
+**Funciones principales:**
 
-**Métodos principales:**
-```kotlin
-onCreate(): Inicializa la vista y configura los listeners
-setLocale(languageCode: String): Cambia el idioma de la aplicación
+-   Navegación a CustomerActivity
+    
+-   Navegación a AdminActivity
+    
+-   Cambio dinámico de idioma mediante setLocale()
+    
+
+----------
+
+### 5.2 BaseActivity
+
+Clase abstracta utilizada por algunas Activities para unificar el comportamiento del botón "Atrás" en la ActionBar.
+
+----------
+
+### 5.3 AdminActivity
+
+Pantalla destinada a los administradores del sistema.
+
+**Funciones:**
+
+-   Gestionar turnos activos
+    
+-   Ver estadísticas (en espera, atendidos, cancelados)
+    
+-   Llamar al siguiente turno
+    
+-   Cancelar turnos
+    
+-   Interfaz simple basada en XML y elementos Material Design
+    
+
+AdminActivity se encuentra implementada en Java y ya no hereda de BaseActivity.
+
+----------
+
+### 5.4 CustomerActivity
+
+Pantalla destinada a los clientes que desean solicitar o consultar su turno.
+
+**Funciones:**
+
+-   Mostrar lista de turnos mediante RecyclerView
+    
+-   Generar un nuevo turno
+    
+-   Mostrar turno en atención
+    
+-   Destacar visualmente los turnos en espera y el turno actual
+    
+-   Navegar de regreso a la pantalla principal
+    
+
+----------
+
+### 5.5 Turn (Modelo)
+
+Clase de datos que representa un turno dentro de la aplicación.
+
 ```
-
-**Componentes UI:**
-- `buttonCustomer`: Botón para acceso como cliente ("Tomar Turno")
-- `buttonLogin`: Botón para acceso de administrador ("Ingresar")
-- `buttonChangeLanguage`: ImageButton para cambiar idioma
-
-**Cambios recientes:**
-- Se simplificó el flujo eliminando la pantalla de login intermedia
-- Navegación directa desde MainActivity a AdminActivity
-
----
-
-### 2. BaseActivity
-**Ubicación:** `app/src/main/java/com/example/turnofacil/BaseActivity.kt`
-
-**Propósito:** Clase abstracta que proporciona funcionalidad común a todas las actividades.
-
-**Funcionalidades:**
-- Implementa el comportamiento del botón "Atrás" en la ActionBar
-- Manejo unificado de la navegación hacia atrás
-
-**Herencia:**
-```
-AppCompatActivity
-    ├── BaseActivity
-    │       └── MainActivity
-    ├── AdminActivity (Java)
-    └── CustomerActivity (Kotlin)
-```
-
-**Nota:** AdminActivity fue migrado a Java y ya no hereda de BaseActivity.
-
----
-
-### 3. AdminActivity
-**Ubicación:** `app/src/main/java/com/example/turnofacil/AdminActivity.java`
-
-**Lenguaje:** Java
-
-**Propósito:** Panel de control para administradores del sistema de turnos.
-
-**Funcionalidades:**
-- Gestión de turnos activos
-- Visualización de estadísticas (en espera, atendidos, cancelados, total)
-- Llamar al siguiente turno
-- Cancelar turnos
-
-**Componentes UI (según layout):**
-- Botones para llamar siguiente turno y cancelar
-- Contadores de estadísticas con iconos
-- Área de visualización de información del turno actual
-
-**Cambios recientes:**
-- Migrado de Kotlin a Java
-- Ya no hereda de BaseActivity
-- Acceso directo desde MainActivity (sin pantalla de login)
-
----
-
-### 4. CustomerActivity
-**Ubicación:** `app/src/main/java/com/example/turnofacil/CustomerActivity.kt`
-
-**Propósito:** Interfaz para clientes que solicitan o consultan su turno.
-
-**Funcionalidades:**
-- Visualización de lista de turnos mediante RecyclerView
-- Generación de ticket de turno
-- Visualización del número de turno asignado
-- Indicador visual del turno en atención
-- Botón para tomar nuevo turno
-
-**Componentes UI (según layout):**
-- RecyclerView para mostrar lista de turnos
-- TurnAdapter para gestionar los items
-- Botón para tomar nuevo turno
-- Cards con estados diferenciados (en atención vs en espera)
-
-**Implementación técnica:**
-```kotlin
-val recyclerView: RecyclerView = findViewById(R.id.recyclerViewTurns)
-recyclerView.layoutManager = LinearLayoutManager(this)
-
-val turns = listOf(
-    Turn("A01", "En atención", isAttending = true),
-    Turn("B02", "En espera"),
-    Turn("C03", "En espera")
-)
-
-val adapter = TurnAdapter(turns)
-recyclerView.adapter = adapter
-```
-
----
-
-### 5. Turn (Modelo de Datos)
-**Ubicación:** `app/src/main/java/com/example/turnofacil/Turn.kt`
-
-**Propósito:** Clase de datos que representa un turno en el sistema.
-
-**Propiedades:**
-```kotlin
 data class Turn(
-    val turnNumber: String,      // Número del turno (ej: "A01", "B02")
-    val status: String,           // Estado del turno ("En atención", "En espera")
-    val isAttending: Boolean = false  // Indica si está siendo atendido
+    val turnNumber: String,
+    val status: String,
+    val isAttending: Boolean = false
 )
 ```
 
-**Uso:**
-- Se utiliza para representar cada turno en la lista de CustomerActivity
-- Permite gestionar el estado visual de cada turno
-- Base para la futura integración con base de datos
+----------
 
----
+### 5.6 TurnAdapter
 
-### 6. TurnAdapter
-**Ubicación:** `app/src/main/java/com/example/turnofacil/TurnAdapter.kt`
+Adaptador utilizado para mostrar la lista de turnos en CustomerActivity.
 
-**Propósito:** Adaptador para RecyclerView que gestiona la visualización de turnos.
+**Responsabilidades:**
 
-**Funcionalidades:**
-- Vincula datos de `Turn` con el layout `item_turn.xml`
-- Gestiona el ViewHolder pattern para eficiencia
-- Aplica estilos dinámicos según el estado del turno
-
-**Lógica de presentación:**
-- **Turno en atención:** Fondo verde suave, borde verde, texto verde
-- **Turno en espera:** Fondo blanco, borde gris claro, texto gris
-
-**Métodos principales:**
-```kotlin
-onCreateViewHolder(): Crea la vista del item
-onBindViewHolder(): Vincula datos con la vista
-bind(turn: Turn): Aplica estilos según el estado
-```
-
----
-
-## Flujo de Navegación
-
-```mermaid
-graph TD
-    A[MainActivity] -->|Tomar Turno| B[CustomerActivity]
-    A -->|Ingresar Admin| C[AdminActivity]
-    B -->|Botón Atrás| A
-    C -->|Botón Atrás| A
-    B -->|RecyclerView| D[TurnAdapter]
-    D -->|Muestra| E[Lista de Turnos]
-```
-
-### Descripción del Flujo
-
-1. **Inicio de la Aplicación:**
-   - La app inicia en `MainActivity`
-   - Usuario elige entre "Tomar Turno" o "Ingresar" (administrador)
-
-2. **Flujo de Cliente:**
-   - Usuario selecciona "Tomar Turno"
-   - Navegación a `CustomerActivity`
-   - Visualiza lista de turnos mediante RecyclerView
-   - Puede ver el turno en atención destacado en verde
-   - Puede tomar un nuevo turno
-   - Puede regresar a la pantalla principal
-
-3. **Flujo de Administrador:**
-   - Usuario selecciona "Ingresar" (botón de administrador)
-   - Navegación directa a `AdminActivity` (sin autenticación intermedia)
-   - Visualiza estadísticas de turnos
-   - Puede llamar al siguiente turno
-   - Puede cancelar turnos
-   - Puede regresar usando el botón "Atrás"
-
----
-
-## Modelo de Base de Datos
-
-La aplicación está diseñada para funcionar con una base de datos relacional que almacena la información de usuarios, turnos y notificaciones. A continuación se describe el esquema de base de datos propuesto.
-
-### Diagrama Entidad-Relación
-
-```
-┌─────────────────┐         ┌─────────────────┐         ┌──────────────────┐
-│    usuarios     │         │     turnos      │         │  notificaciones  │
-├─────────────────┤         ├─────────────────┤         ├──────────────────┤
-│ id (PK)         │────┐    │ id (PK)         │         │ id (PK)          │
-│ nombre          │    │    │ id_usuario (FK) │◄────┐   │ id_usuario (FK)  │
-│ email (UNIQUE)  │    └───►│ numero_turno    │     │   │ titulo           │
-│ password        │         │ estado          │     │   │ mensaje          │
-│ rol             │         │ fecha_hora      │     │   │ leida            │
-│ fecha_registro  │         │ fecha_creacion  │     │   │ fecha_envio      │
-└─────────────────┘         └─────────────────┘     │   └──────────────────┘
-                                                     │
-                                                     └───────────────────────┘
-```
-
-### 1. Tabla: usuarios
-
-Almacena la información de cada persona que usa el sistema (cliente o administrador).
-
-| Campo            | Tipo                     | Restricciones | Descripción                     |
-|------------------|--------------------------|---------------|---------------------------------|
-| `id`             | INT                      | PK, AI        | Identificador único del usuario |
-| `nombre`         | VARCHAR(100)             | NOT NULL      | Nombre completo del usuario     |
-| `email`          | VARCHAR(255)             | UNIQUE, NOT NULL | Correo electrónico único     |
-| `password`       | VARCHAR(255)             | NOT NULL      | Contraseña encriptada (hash)    |
-| `rol`            | ENUM('cliente', 'admin') | NOT NULL      | Define los permisos del usuario |
-| `fecha_registro` | DATETIME                 | DEFAULT CURRENT_TIMESTAMP | Fecha de registro en el sistema |
-
-**Índices:**
-- PRIMARY KEY: `id`
-- UNIQUE INDEX: `email`
-- INDEX: `rol` (para búsquedas por tipo de usuario)
-
-**Consideraciones de seguridad:**
-- El campo `password` debe almacenar hashes seguros (bcrypt, Argon2, etc.), nunca texto plano
-- El email debe validarse antes de insertarse
-- Implementar rate limiting para intentos de login
-
----
-
-### 2. Tabla: turnos
-
-Registra los turnos agendados o generados por los clientes.
-
-| Campo            | Tipo                                            | Restricciones | Descripción                           |
-|------------------|-------------------------------------------------|---------------|---------------------------------------|
-| `id`             | INT                                             | PK, AI        | Identificador único del turno         |
-| `id_usuario`     | INT                                             | FK, NOT NULL  | Cliente que reservó/generó el turno   |
-| `numero_turno`   | VARCHAR(50)                                     | NOT NULL      | Código del turno (ej: "A12", "B05")   |
-| `estado`         | ENUM('pendiente', 'cancelado', 'completado')    | NOT NULL      | Estado actual del turno               |
-| `fecha_hora`     | DATETIME                                        | NOT NULL      | Fecha y hora programada del turno     |
-| `fecha_creacion` | DATETIME                                        | DEFAULT CURRENT_TIMESTAMP | Cuándo se creó el turno      |
-
-**Relaciones:**
-- FOREIGN KEY: `id_usuario` REFERENCES `usuarios(id)` ON DELETE CASCADE
-
-**Índices:**
-- PRIMARY KEY: `id`
-- FOREIGN KEY INDEX: `id_usuario`
-- INDEX: `estado` (para filtrar turnos activos)
-- INDEX: `fecha_hora` (para ordenar por tiempo)
-- UNIQUE INDEX: `numero_turno, fecha_hora` (evitar duplicados)
-
-**Lógica de negocio:**
-- El `numero_turno` debe generarse automáticamente según un algoritmo definido
-- Los turnos en estado 'pendiente' deben ser procesables por el administrador
-- Los turnos 'completado' o 'cancelado' son históricos
-
----
-
-### 3. Tabla: notificaciones
-
-Almacena las notificaciones enviadas a los usuarios del sistema.
-
-| Campo             | Tipo                  | Restricciones | Descripción                     |
-|-------------------|-----------------------|---------------|---------------------------------|
-| `id`              | INT                   | PK, AI        | Identificador único             |
-| `id_usuario`      | INT                   | FK, NOT NULL  | Usuario destinatario            |
-| `titulo`          | VARCHAR(100)          | NOT NULL      | Título breve de la notificación |
-| `mensaje`         | VARCHAR(255)          | NOT NULL      | Contenido del mensaje           |
-| `leida`           | BOOLEAN               | DEFAULT 0     | Indica si fue leída (0=no, 1=sí)|
-| `fecha_envio`     | DATETIME              | DEFAULT CURRENT_TIMESTAMP | Timestamp del envío    |
-
-**Relaciones:**
-- FOREIGN KEY: `id_usuario` REFERENCES `usuarios(id)` ON DELETE CASCADE
-
-**Índices:**
-- PRIMARY KEY: `id`
-- FOREIGN KEY INDEX: `id_usuario`
-- INDEX: `leida, id_usuario` (consultas de notificaciones no leídas)
-- INDEX: `fecha_envio` (ordenar por recientes)
-
-**Casos de uso:**
-- Notificar cuando está próximo el turno del cliente
-- Avisar si un turno fue cancelado
-- Recordatorios automáticos
-- Mensajes del administrador
-
----
-
-### Diagrama de Relaciones Completo
-
-```sql
--- Tabla usuarios
-CREATE TABLE usuarios (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    rol ENUM('cliente', 'admin') NOT NULL,
-    fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_rol (rol),
-    INDEX idx_email (email)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Tabla turnos
-CREATE TABLE turnos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    id_usuario INT NOT NULL,
-    numero_turno VARCHAR(50) NOT NULL,
-    estado ENUM('pendiente', 'cancelado', 'completado') NOT NULL DEFAULT 'pendiente',
-    fecha_hora DATETIME NOT NULL,
-    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_usuario) REFERENCES usuarios(id) ON DELETE CASCADE,
-    INDEX idx_usuario (id_usuario),
-    INDEX idx_estado (estado),
-    INDEX idx_fecha (fecha_hora),
-    UNIQUE KEY uk_turno_fecha (numero_turno, fecha_hora)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Tabla notificaciones
-CREATE TABLE notificaciones (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    id_usuario INT NOT NULL,
-    titulo VARCHAR(100) NOT NULL,
-    mensaje VARCHAR(255) NOT NULL,
-    leida BOOLEAN DEFAULT FALSE,
-    fecha_envio DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_usuario) REFERENCES usuarios(id) ON DELETE CASCADE,
-    INDEX idx_usuario_leida (id_usuario, leida),
-    INDEX idx_fecha (fecha_envio)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-```
-
----
-
-### Consideraciones de Implementación
-
-#### Backend Recomendado
-Para implementar este modelo de base de datos, se recomienda:
-
-1. **Base de datos:** MySQL 8.0+ o PostgreSQL 13+
-2. **ORM:** Room (Android nativo) o Retrofit + API REST
-3. **API Backend:** 
-   - Spring Boot (Java/Kotlin)
-   - Node.js + Express
-   - Laravel (PHP)
-   - Django/FastAPI (Python)
-
-#### Sincronización con la App Android
-
-La app Android actualmente no tiene implementada la persistencia de datos. Para integrar la base de datos:
-
-**Opción 1: SQLite Local (sin servidor)**
-```kotlin
-// Usar Room Database
-@Database(entities = [Usuario::class, Turno::class, Notificacion::class], version = 1)
-abstract class AppDatabase : RoomDatabase() {
-    abstract fun usuarioDao(): UsuarioDao
-    abstract fun turnoDao(): TurnoDao
-    abstract fun notificacionDao(): NotificacionDao
-}
-```
-
-**Opción 2: API REST (recomendado)**
-```kotlin
-// Usar Retrofit para comunicación con backend
-interface TurnoApiService {
-    @GET("turnos/usuario/{id}")
-    suspend fun getTurnosUsuario(@Path("id") userId: Int): List<Turno>
+-   Inflar elementos de lista
     
-    @POST("turnos")
-    suspend fun crearTurno(@Body turno: Turno): Response<Turno>
+-   Asignar datos de Turn a cada vista
     
-    @PUT("turnos/{id}/estado")
-    suspend fun actualizarEstado(@Path("id") turnoId: Int, @Body estado: String): Response<Void>
-}
+-   Aplicar estilos visuales según el estado del turno
+    
+
+----------
+
+## 6. Flujo de Navegación
+
+```
+MainActivity
+ ├── Cliente → CustomerActivity → Lista de turnos (TurnAdapter)
+ └── Administrador → AdminActivity
 ```
 
-#### Seguridad de Datos
+**Descripción:**
 
-1. **Autenticación:** Implementar JWT (JSON Web Tokens)
-2. **Encriptación:** HTTPS obligatorio para todas las comunicaciones
-3. **Validación:** Sanitizar todas las entradas de usuario
-4. **Respaldos:** Backups automáticos diarios de la base de datos
-5. **Logs:** Auditoría de acciones críticas (creación/cancelación de turnos)
+-   La aplicación inicia en MainActivity
+    
+-   El cliente accede a CustomerActivity
+    
+-   El administrador accede a AdminActivity
+    
+-   Ambas pantallas permiten regresar a la principal mediante el botón atrás
+    
 
-#### Optimizaciones
+----------
 
-- **Caché:** Implementar caché local para turnos activos
-- **Paginación:** Para listas largas de turnos históricos
-- **Índices:** Ya definidos en el esquema SQL
-- **Pooling de conexiones:** Para múltiples usuarios concurrentes
-- **Cleanup automático:** Eliminar turnos antiguos (>90 días) periódicamente
+## 7. Modelo de Base de Datos
 
----
+Aunque la aplicación aún no implementa persistencia real, el diseño propuesto contempla una base de datos relacional compuesta por tres tablas principales:
 
-## Características Implementadas
+### 7.1 Tabla usuarios
 
-### 1. Sistema de Navegación
-- ✅ Navegación entre pantallas usando Intents
-- ✅ Botón "Atrás" funcional en todas las pantallas secundarias
-- ✅ Estructura de navegación clara y lógica
+| Campo           | Tipo                    | Descripción              |
+|-----------------|-------------------------|--------------------------|
+| id              | INT PK AI               | Identificador único      |
+| nombre          | VARCHAR(100)            | Nombre del usuario       |
+| email           | VARCHAR(255) UNIQUE     | Correo único             |
+| password        | VARCHAR(255)            | Hash de contraseña       |
+| rol             | ENUM(cliente, admin)    | Rol del usuario          |
+| fecha_registro  | DATETIME                | Fecha de registro        |
 
-### 2. Internacionalización (i18n)
-- ✅ Soporte para español (predeterminado)
-- ✅ Soporte para inglés
-- ✅ Cambio de idioma en tiempo de ejecución
-- ✅ Persistencia del idioma seleccionado
+----------
 
-### 3. Interfaz de Usuario
-- ✅ Diseño Material Design
-- ✅ Layouts responsivos con ConstraintLayout
-- ✅ Iconos vectoriales para mejor escalabilidad
-- ✅ Tema claro/oscuro mediante themes.xml
+### 7.2 Tabla turnos
 
-### 4. Estructura de Código
-- ✅ Separación de responsabilidades
-- ✅ Clase base para funcionalidad compartida
-- ✅ Uso de Kotlin y Java (arquitectura híbrida)
-- ✅ Nomenclatura clara y consistente
-- ✅ Patrón ViewHolder con RecyclerView
-- ✅ Data classes para modelos de datos
-- ✅ Adaptadores personalizados para listas
+| Campo          | Tipo                                      | Descripción               |
+|----------------|-------------------------------------------|---------------------------|
+| id             | INT PK AI                                  | ID del turno              |
+| id_usuario     | INT FK                                     | Usuario dueño del turno   |
+| numero_turno   | VARCHAR(50)                                | Código del turno          |
+| estado         | ENUM(pendiente, cancelado, completado)     | Estado del turno          |
+| fecha_hora     | DATETIME                                   | Fecha programada          |
+| fecha_creacion | DATETIME                                   | Fecha de creación         |
 
----
 
-## Configuración del Proyecto
+----------
 
-### Archivo build.gradle.kts (Módulo app)
+### 7.3 Tabla notificaciones
+| Campo        | Tipo              | Descripción                  |
+|--------------|-------------------|------------------------------|
+| id           | INT PK AI         | ID de la notificación        |
+| id_usuario   | INT FK            | Usuario destinatario         |
+| titulo       | VARCHAR(100)      | Título del mensaje           |
+| mensaje      | VARCHAR(255)      | Contenido del mensaje        |
+| leida        | BOOLEAN           | Indicador de lectura         |
+| fecha_envio  | DATETIME          | Fecha de envío               |
 
-```kotlin
+
+----------
+
+### Relaciones del modelo
+
+```
+usuarios (1) <--> (N) turnos
+usuarios (1) <--> (N) notificaciones
+```
+
+----------
+
+## 8. Características Implementadas
+
+-   Navegación mediante Intents
+    
+-   Botón atrás funcional
+    
+-   Diseño Material Design
+    
+-   Soporte multi-idioma (español e inglés)
+    
+-   RecyclerView con adaptadores personalizados
+    
+-   Vista mejorada para turno en atención
+    
+-   Estructura del proyecto clara y modular
+    
+-   Uso de data classes y ViewHolder Pattern
+    
+
+----------
+
+## 9. Configuración del Proyecto
+
+### build.gradle.kts (resumen)
+
+```
 android {
     namespace = "com.example.turnofacil"
     compileSdk = 36
-    
+
     defaultConfig {
         applicationId = "com.example.turnofacil"
         minSdk = 24
@@ -580,311 +335,236 @@ android {
         versionCode = 1
         versionName = "1.0"
     }
-    
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    
+
     kotlinOptions {
         jvmTarget = "11"
     }
 }
+
 ```
 
-### Dependencias Principales
+### Dependencias principales
 
-| Dependencia | Versión | Propósito |
-|------------|---------|-----------|
-| androidx.core:core-ktx | Variable | Extensiones Kotlin para Android |
-| androidx.appcompat | Variable | Compatibilidad hacia atrás |
-| material | Variable | Material Design Components |
-| androidx.constraintlayout | Variable | Sistema de layouts flexible |
-| androidx.activity | Variable | Gestión de actividades |
-| androidx.recyclerview | Variable | Listas eficientes con RecyclerView |
-| androidx.cardview | Variable | Cards para UI con Material Design |
+-   androidx.core:core-ktx
+    
+-   androidx.appcompat
+    
+-   material
+    
+-   constraintlayout
+    
+-   recyclerview
+    
+-   cardview
+    
 
-### Permisos de la Aplicación
-Actualmente, la aplicación no requiere permisos especiales en el `AndroidManifest.xml`.
+----------
 
----
+## 10. Guía de Compilación
 
-## Guía de Compilación
+### Requisitos previos
 
-### Prerrequisitos
-1. Instalar Android Studio
-2. Configurar Android SDK (API 24 - API 36)
-3. Instalar JDK 11 o superior
+-   Instalar Android Studio
+    
+-   Instalar JDK 11
+    
+-   Tener las SDK necesarias (API 24–36)
+    
 
-### Pasos para Compilar
+### Pasos
 
-#### 1. Clonar el Proyecto
-```bash
-git clone <url-del-repositorio>
-cd redes
+1.  Clonar el repositorio
+    
+    ```
+    git clone <url>
+    cd redes
+    
+    ```
+    
+2.  Abrir en Android Studio
+    
+3.  Sincronizar Gradle
+    
+4.  Ejecutar la app en dispositivo o emulador
+    
+
+### Generar APK
+
 ```
-
-#### 2. Abrir en Android Studio
-- File > Open
-- Seleccionar la carpeta `redes`
-- Esperar a que Gradle sincronice
-
-#### 3. Compilar el Proyecto
-```bash
-./gradlew build
-```
-
-O desde Android Studio:
-- Build > Make Project (Ctrl+F9)
-
-#### 4. Ejecutar en Emulador/Dispositivo
-- Seleccionar dispositivo de destino
-- Run > Run 'app' (Shift+F10)
-
-#### 5. Generar APK
-```bash
 ./gradlew assembleDebug
-```
-El APK se generará en: `app/build/outputs/apk/debug/`
-
-#### 6. Generar APK de Release
-```bash
 ./gradlew assembleRelease
+
 ```
 
-### Comandos Útiles de Gradle
+----------
 
-```bash
-# Limpiar el proyecto
-./gradlew clean
+## 11. Internacionalización
 
-# Ver todas las tareas disponibles
-./gradlew tasks
+Se soportan dos idiomas: español e inglés.
 
-# Ejecutar tests unitarios
-./gradlew test
+Archivos involucrados:
 
-# Ejecutar tests instrumentados
-./gradlew connectedAndroidTest
+-   res/values/strings.xml (ES)
+    
+-   res/values-en/strings.xml (EN)
+    
 
-# Generar reporte de dependencias
-./gradlew dependencies
+Cambio dinámico de idioma mediante:
+
 ```
-
----
-
-## Internacionalización
-
-### Idiomas Soportados
-- **Español (es):** Idioma predeterminado
-- **Inglés (en):** Idioma secundario
-
-### Estructura de Recursos
-
-#### Español (values/strings.xml)
-```xml
-<string name="app_name">Turno Fácil</string>
-<string name="slogan">Gestiona turnos de forma eficiente</string>
-<string name="button_customer">Soy Cliente</string>
-<string name="button_employee">Soy Empleado</string>
-```
-
-#### Inglés (values-en/strings.xml)
-```xml
-<string name="app_name">Easy Turn</string>
-<string name="slogan">Manage turns efficiently</string>
-<string name="button_customer">I am a Customer</string>
-<string name="button_employee">I am an Employee</string>
-```
-
-### Implementación del Cambio de Idioma
-
-La aplicación permite cambiar el idioma en tiempo de ejecución mediante el método `setLocale()` en `MainActivity`:
-
-```kotlin
 private fun setLocale(languageCode: String) {
     val locale = Locale(languageCode)
     Locale.setDefault(locale)
     val config = Configuration()
     config.setLocale(locale)
-    baseContext.resources.updateConfiguration(config, 
-                                               baseContext.resources.displayMetrics)
+    baseContext.resources.updateConfiguration(config, baseContext.resources.displayMetrics)
     recreate()
 }
+
 ```
 
-### Agregar Nuevos Idiomas
+----------
 
-Para agregar soporte para un nuevo idioma (por ejemplo, francés):
+## 12. Mejoras Futuras
 
-1. Crear carpeta `values-fr/` en `res/`
-2. Copiar `strings.xml` y traducir los textos
-3. El sistema Android seleccionará automáticamente el idioma según la configuración del dispositivo
+### Backend
 
----
+-   Implementación de API REST
+    
+-   Autenticación con JWT
+    
+-   Persistencia real en MySQL o PostgreSQL
+    
 
-## Mejoras Futuras
+### Funcionalidad de negocio
 
-### Funcionalidades Pendientes
+-   Algoritmo automático de asignación de turnos
+    
+-   Notificaciones push
+    
+-   Gestión de prioridades
+    
+-   Estadísticas avanzadas
+    
 
-#### 1. Backend e Integración
-- [ ] Implementar servicio backend (REST API o Firebase)
-- [ ] Autenticación real de usuarios (JWT)
-- [x] Diseño del esquema de base de datos (completado)
-- [ ] Implementación de la base de datos (MySQL/PostgreSQL)
-- [ ] Integración de Room Database para caché local
-- [ ] Sincronización en tiempo real entre app y servidor
-- [ ] API REST para gestión de turnos y usuarios
+### Arquitectura
 
-#### 2. Funcionalidad de Negocio
-- [ ] Algoritmo de asignación de turnos
-- [ ] Notificaciones push cuando se acerca el turno
-- [ ] Sistema de prioridades (turnos preferenciales)
-- [ ] Estadísticas y reportes de atención
-- [ ] Gestión de múltiples servicios/ventanillas
-- [ ] Cancelación de turnos por parte del cliente
+-   Migración a MVVM
+    
+-   Uso de ViewModel y LiveData
+    
+-   Repository Pattern
+    
+-   Navigation Component
+    
 
-#### 3. Mejoras de UI/UX
-- [ ] Animaciones de transición entre pantallas
-- [ ] Feedback visual mejorado (SnackBars, Toasts)
-- [ ] Modo oscuro completo personalizado
-- [ ] Temas personalizables
-- [ ] Accesibilidad mejorada (TalkBack)
+### UI/UX
 
-#### 4. Arquitectura y Código
-- [ ] Implementar arquitectura MVVM o MVI
-- [ ] Usar ViewModel y LiveData
-- [ ] Inyección de dependencias (Hilt/Koin)
-- [ ] Repository pattern para datos
-- [ ] Navigation Component para navegación
-- [ ] Coroutines para operaciones asíncronas
+-   Animaciones
+    
+-   Modo oscuro completo
+    
+-   Accesibilidad mejorada
+    
 
-#### 5. Testing
-- [ ] Tests unitarios completos
-- [ ] Tests de integración
-- [ ] Tests UI con Espresso
-- [ ] Cobertura de código >80%
+### Testing
 
-#### 6. Seguridad
-- [ ] Ofuscación de código (ProGuard/R8)
-- [ ] Cifrado de datos sensibles
-- [ ] Validación de entradas
-- [ ] Protección contra ataques comunes
+-   Tests unitarios
+    
+-   Tests de integración
+    
+-   Tests UI con Espresso
+    
 
-#### 7. Rendimiento
-- [ ] Optimización de layouts
-- [ ] Lazy loading de recursos
-- [ ] Caché de datos
-- [ ] Reducción del tamaño del APK
+----------
 
-#### 8. Características Adicionales
-- [ ] Código QR para tickets
-- [ ] Estimación inteligente de tiempos de espera
-- [ ] Integración con sistemas de pantalla externa
-- [ ] Panel web para administradores
-- [ ] Reserva de turnos anticipada
-- [ ] Valoración del servicio recibido
+## 13. Mantenimiento y Soporte
 
----
+Comandos útiles:
 
-## Mantenimiento y Soporte
-
-### Actualización de Dependencias
-
-Es recomendable mantener las dependencias actualizadas:
-
-```bash
-# Ver dependencias desactualizadas
+```
+./gradlew clean
+./gradlew test
+./gradlew dependencies
 ./gradlew dependencyUpdates
+
 ```
 
-### Logs y Debugging
+Herramientas de depuración:
 
-Para debugging, Android Studio ofrece:
-- Logcat para ver logs en tiempo real
-- Android Profiler para análisis de rendimiento
-- Layout Inspector para depurar layouts
+-   Logcat
+    
+-   Android Profiler
+    
+-   Layout Inspector
+    
 
-### Versionado
+Versionado:
 
-El proyecto sigue Semantic Versioning (SemVer):
-- **MAJOR.MINOR.PATCH** (1.0.0)
-- Actualizar `versionCode` y `versionName` en build.gradle.kts
+-   Se utiliza SemVer (MAJOR.MINOR.PATCH)
+    
 
----
+----------
 
-## Contacto y Contribuciones
+## 14. Contacto y Contribuciones
 
-### Información del Proyecto
-- **Repositorio:** redes
-- **Owner:** Giancarlo174
-- **Branch principal:** main
+-   Repositorio: redes
+    
+-   Owner: Giancarlo174
+    
+-   Rama principal: main
+    
 
-### Guía para Contribuir
+Pasos para contribuir:
 
-1. Fork del repositorio
-2. Crear una rama para la feature: `git checkout -b feature/nueva-funcionalidad`
-3. Commit de cambios: `git commit -m 'Agregar nueva funcionalidad'`
-4. Push a la rama: `git push origin feature/nueva-funcionalidad`
-5. Crear Pull Request
+1.  Crear un fork
+    
+2.  Crear una nueva rama
+    
+3.  Realizar cambios y hacer commit
+    
+4.  Enviar pull request
+    
 
----
+----------
 
-## Glosario
+## 15. Glosario
 
-### Términos de Android
-- **Activity:** Componente de Android que representa una pantalla
-- **Intent:** Objeto para comunicación entre componentes
-- **Layout:** Archivo XML que define la estructura de la UI
-- **Gradle:** Sistema de automatización de builds
-- **APK:** Android Package Kit (paquete instalable)
-- **SDK:** Software Development Kit
-- **i18n:** Internacionalización (18 letras entre 'i' y 'n')
-- **Material Design:** Sistema de diseño de Google
-- **ConstraintLayout:** Sistema de layout flexible y eficiente
+-   Activity: Pantalla de interfaz
+    
+-   Intent: Objeto para navegación
+    
+-   Layout: Estructura UI en XML
+    
+-   Gradle: Sistema de construcción
+    
+-   RecyclerView: Lista eficiente
+    
+-   ViewHolder: Patrón de optimización de listas
+    
+-   PK/FK: Llaves primarias y foráneas
+    
+-   ORM: Mapeo objeto-relacional
+    
+-   JWT: Token de autenticación
+    
+-   MVVM: Patrón arquitectónico
+    
+-   ConstraintLayout: Layout flexible en Android
+    
 
-### Términos de Base de Datos
-- **PK (Primary Key):** Llave primaria, identificador único de un registro
-- **FK (Foreign Key):** Llave foránea, establece relación entre tablas
-- **AI (Auto Increment):** Incremento automático de valores numéricos
-- **UNIQUE:** Restricción que garantiza valores únicos en una columna
-- **INDEX:** Estructura que mejora la velocidad de búsqueda en tablas
-- **CASCADE:** Propaga operaciones (DELETE/UPDATE) a registros relacionados
-- **ENUM:** Tipo de dato que acepta solo valores predefinidos
-- **ORM (Object-Relational Mapping):** Mapeo de objetos a tablas relacionales
-- **Room:** Biblioteca de persistencia de Android sobre SQLite
-- **JWT (JSON Web Token):** Estándar para tokens de autenticación seguros
+----------
 
-### Términos de Arquitectura
-- **API REST:** Interfaz de programación basada en HTTP
-- **Backend:** Servidor que procesa lógica de negocio y datos
-- **Frontend:** Interfaz de usuario (la app Android)
-- **MVVM:** Model-View-ViewModel, patrón de arquitectura
-- **Repository Pattern:** Patrón que abstrae el acceso a datos
-- **Retrofit:** Cliente HTTP para Android/Java
-- **Coroutines:** Programación asíncrona en Kotlin
+## 16. Historial de Versiones
 
----
-
-## Licencia
-
-_Pendiente de definir_
-
----
-
-## Historial de Versiones
-
-| Versión | Fecha | Cambios |
-|---------|-------|---------|
-| 1.2 | 17/11/2025 | Implementación de RecyclerView, modelo Turn, TurnAdapter. Eliminación de LoginActivity. Migración de AdminActivity a Java. Nuevos recursos visuales y colores |
-| 1.1 | 11/11/2025 | Agregado modelo completo de base de datos con 3 tablas principales |
-| 1.0 | 11/11/2025 | Versión inicial con funcionalidades básicas |
-
----
-
-**Última actualización:** 17 de noviembre de 2025
-
-**Autor:** Hunter2801a (Adrian Jimenez M.)
-
-**Documento elaborado y verificado por:** Hunter2801a + GitHub Copilot
+| Versión | Fecha       | Cambios                                                      |
+|---------|-------------|--------------------------------------------------------------|
+| 1.2     | 17/11/2025  | Implementación de RecyclerView, TurnAdapter y migración de AdminActivity a Java |
+| 1.1     | 11/11/2025  | Definición del modelo completo de base de datos             |
+| 1.0     | 11/11/2025  | Versión inicial del proyecto                                 |
 
