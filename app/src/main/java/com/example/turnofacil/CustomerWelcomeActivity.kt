@@ -60,6 +60,7 @@ class CustomerWelcomeActivity : BaseActivity() {
                 if (response.getBoolean("success")) {
                     val data = response.getJSONObject("data")
                     val numeroTurno = data.getString("numero_turno")
+                    val usuarioId = data.getInt("usuario_id")
                     
                     Toast.makeText(
                         this@CustomerWelcomeActivity,
@@ -70,7 +71,8 @@ class CustomerWelcomeActivity : BaseActivity() {
                     // Navegar a CustomerActivity con el turno
                     val intent = Intent(this@CustomerWelcomeActivity, CustomerActivity::class.java)
                     intent.putExtra("turno_numero", numeroTurno)
-                    intent.putExtra("usuario_nombre", nombre)
+                    intent.putExtra("USER_NAME", nombre)
+                    intent.putExtra("USER_ID", usuarioId)
                     startActivity(intent)
                     finish()
                 } else {

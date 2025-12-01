@@ -103,6 +103,38 @@ Parámetros opcionales:
 }
 ```
 
+#### Listar Turnos de Usuario
+**GET** `/turnos/list_user.php?id_usuario=1&fecha=2025-11-30`
+
+**Descripción:** Obtiene los turnos de un usuario específico con información adicional sobre su posición en la cola.
+
+Parámetros requeridos:
+- `id_usuario`: ID del usuario
+
+Parámetros opcionales:
+- `fecha`: formato YYYY-MM-DD (por defecto hoy)
+
+**Respuesta:**
+```json
+{
+  "success": true,
+  "data": {
+    "turnos": [
+      {
+        "id": 5,
+        "numero_turno": "A05",
+        "estado": "pendiente",
+        "fecha_creacion": "2025-11-30 14:30:00",
+        "actualizado_en": "2025-11-30 14:30:00"
+      }
+    ],
+    "turno_en_atencion": "A12",
+    "posicion_en_cola": 2
+  },
+  "count": 1
+}
+```
+
 #### Actualizar Estado de Turno
 **PUT** `/turnos/update.php`
 

@@ -36,18 +36,39 @@ class TurnAdapter(private val turns: List<Turn>) : RecyclerView.Adapter<TurnAdap
             val density = itemView.context.resources.displayMetrics.density
             val strokeWidthPx = (1 * density).toInt()
 
-            if (turn.isAttending) {
-                turnCard.setCardBackgroundColor(ContextCompat.getColor(itemView.context, R.color.softgreen))
-                turnCard.strokeWidth = strokeWidthPx
-                turnCard.strokeColor = ContextCompat.getColor(itemView.context, R.color.softgreenborder)
-                textViewStatus.setTextColor(ContextCompat.getColor(itemView.context, R.color.green))
-                textViewTurnNumber.setTextColor(ContextCompat.getColor(itemView.context, R.color.green))
-            } else {
-                turnCard.setCardBackgroundColor(Color.WHITE)
-                turnCard.strokeWidth = strokeWidthPx
-                turnCard.strokeColor = ContextCompat.getColor(itemView.context, R.color.light_grey_border)
-                textViewStatus.setTextColor(ContextCompat.getColor(itemView.context, R.color.grey))
-                textViewTurnNumber.setTextColor(ContextCompat.getColor(itemView.context, R.color.grey))
+            when {
+                turn.isAttending -> {
+                    // Turno en atención (verde)
+                    turnCard.setCardBackgroundColor(ContextCompat.getColor(itemView.context, R.color.softgreen))
+                    turnCard.strokeWidth = strokeWidthPx
+                    turnCard.strokeColor = ContextCompat.getColor(itemView.context, R.color.softgreenborder)
+                    textViewStatus.setTextColor(ContextCompat.getColor(itemView.context, R.color.green))
+                    textViewTurnNumber.setTextColor(ContextCompat.getColor(itemView.context, R.color.green))
+                }
+                turn.status == "Atendido" -> {
+                    // Turno atendido (verde suave)
+                    turnCard.setCardBackgroundColor(Color.parseColor("#E8F8F5"))
+                    turnCard.strokeWidth = strokeWidthPx
+                    turnCard.strokeColor = Color.parseColor("#1ABC9C")
+                    textViewStatus.setTextColor(Color.parseColor("#1ABC9C"))
+                    textViewTurnNumber.setTextColor(Color.parseColor("#1ABC9C"))
+                }
+                turn.status == "Cancelado" -> {
+                    // Turno cancelado (rojo)
+                    turnCard.setCardBackgroundColor(Color.parseColor("#FADBD8"))
+                    turnCard.strokeWidth = strokeWidthPx
+                    turnCard.strokeColor = Color.parseColor("#E74C3C")
+                    textViewStatus.setTextColor(Color.parseColor("#E74C3C"))
+                    textViewTurnNumber.setTextColor(Color.parseColor("#E74C3C"))
+                }
+                else -> {
+                    // Turno en espera (gris)
+                    turnCard.setCardBackgroundColor(Color.WHITE)
+                    turnCard.strokeWidth = strokeWidthPx
+                    turnCard.strokeColor = ContextCompat.getColor(itemView.context, R.color.light_grey_border)
+                    textViewStatus.setTextColor(ContextCompat.getColor(itemView.context, R.color.grey))
+                    textViewTurnNumber.setTextColor(ContextCompat.getColor(itemView.context, R.color.grey))
+                }
             }
         }
     }
