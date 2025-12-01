@@ -253,57 +253,58 @@ La aplicación utiliza una base de datos relacional compuesta por cuatro tablas 
 
 ### 7.1 Tabla usuarios
 
-| Campo           | Tipo                    | Descripción              |
-|-----------------|-------------------------|--------------------------|
-| id              | INT PK AI               | Identificador único      |
-| id_sucursal     | INT FK                  | Sucursal asignada        |
-| nombre          | VARCHAR(100)            | Nombre del usuario       |
-| email           | VARCHAR(255) UNIQUE     | Correo único             |
-| password        | VARCHAR(255)            | Hash de contraseña       |
-| rol             | ENUM(cliente, admin)    | Rol del usuario          |
-| fecha_registro  | DATETIME                | Fecha de registro        |
+| Campo           | Tipo                    | Restricciones | Descripción              |
+|-----------------|-------------------------|--|--------------------------|
+| id              | INT                     | PK, AI | Identificador único      |
+| id_sucursal     | INT                     | FK, NOT NULL | Sucursal asignada (referencia a sucursales) |
+| nombre          | VARCHAR(100)            | NOT NULL | Nombre del usuario       |
+| email           | VARCHAR(255)            | UNIQUE, NOT NULL | Correo único             |
+| password        | VARCHAR(255)            | NOT NULL | Hash de contraseña       |
+| rol             | ENUM(cliente, admin)    | DEFAULT 'cliente' | Rol del usuario          |
+| fecha_registro  | DATETIME                | DEFAULT CURRENT_TIMESTAMP | Fecha de registro        |
 
 ----------
 
 ### 7.2 Tabla turnos
 
-| Campo          | Tipo                                      | Descripción               |
-|----------------|-------------------------------------------|---------------------------|
-| id             | INT PK AI                                  | ID del turno              |
-| id_usuario     | INT FK                                     | Usuario dueño del turno   |
-| id_sucursal    | INT FK                                     | Sucursal del turno        |
-| numero_turno   | VARCHAR(50)                                | Código del turno (A01, B02, etc.) |
-| estado         | ENUM(pendiente, cancelado, completado)     | Estado del turno          |
-| fecha_creacion | DATETIME                                   | Fecha de creación         |
-| actualizado_en | DATETIME ON UPDATE                         | Última actualización      |
+| Campo          | Tipo                                      | Restricciones | Descripción               |
+|----------------|-------------------------------------------|--|---------------------------|
+| id             | INT                                        | PK, AI | ID del turno              |
+| id_usuario     | INT                                        | FK, NOT NULL | Usuario dueño del turno (referencia a usuarios) |
+| id_sucursal    | INT                                        | FK, NOT NULL | Sucursal del turno (referencia a sucursales) |
+| numero_turno   | VARCHAR(50)                                | NOT NULL | Código del turno (A01, B02, etc.) |
+| estado         | ENUM(pendiente, cancelado, completado)     | DEFAULT 'pendiente' | Estado del turno          |
+| fecha_creacion | DATETIME                                   | DEFAULT CURRENT_TIMESTAMP | Fecha de creación         |
+| actualizado_en | DATETIME                                   | DEFAULT CURRENT_TIMESTAMP ON UPDATE | Última actualización      |
 ----------
 
 ### 7.3 Tabla notificaciones
 
-| Campo        | Tipo              | Descripción                  |
-|--------------|-------------------|------------------------------|
-| id           | INT PK AI         | ID de la notificación        |
-| id_usuario   | INT FK            | Usuario destinatario         |
-| titulo       | VARCHAR(100)      | Título del mensaje           |
-| mensaje      | VARCHAR(255)      | Contenido del mensaje        |
-| leida        | BOOLEAN           | Indicador de lectura (0=no, 1=sí) |
-| fecha_envio  | DATETIME          | Fecha de envío               |
+| Campo        | Tipo              | Restricciones | Descripción                  |
+|--------------|-------------------|--|------------------------------|
+| id           | INT               | PK, AI | ID de la notificación        |
+| id_usuario   | INT               | FK, NOT NULL | Usuario destinatario (referencia a usuarios) |
+| titulo       | VARCHAR(100)      | NOT NULL | Título del mensaje           |
+| mensaje      | VARCHAR(255)      | NOT NULL | Contenido del mensaje        |
+| leida        | BOOLEAN           | DEFAULT 0 | Indicador de lectura (0=no, 1=sí) |
+| fecha_envio  | DATETIME          | DEFAULT CURRENT_TIMESTAMP | Fecha de envío               |
 
 ----------
 
 ### 7.4 Tabla sucursales
 
-| Campo       | Tipo              | Descripción                  |
-|-------------|-------------------|------------------------------|
-| id_sucursal | INT PK AI         | Identificador único          |
-| nombre      | VARCHAR(120)      | Nombre de la sucursal        |
-| ubicacion   | VARCHAR(255)      | Dirección                    |
-| telefono    | VARCHAR(20)       | Teléfono de contacto         |
+| Campo       | Tipo              | Restricciones | Descripción                  |
+|-------------|-------------------|--|------------------------------|
+| id_sucursal | INT               | PK, AI | Identificador único          |
+| nombre      | VARCHAR(120)      | NOT NULL | Nombre de la sucursal        |
+| ubicacion   | VARCHAR(255)      | NOT NULL | Dirección                    |
+| telefono    | VARCHAR(20)       | Nullable | Teléfono de contacto         |
 
 ----------
 
-### Relaciones del modelo
+### 7.5 Relaciones y Restricciones
 
+**Relaciones:**
 ```
 sucursales (1) <--> (N) usuarios
 sucursales (1) <--> (N) turnos
@@ -311,53 +312,96 @@ usuarios (1) <--> (N) turnos
 usuarios (1) <--> (N) notificaciones
 ```
 
-**Diagrama Entidad-Relación:**
+**Integridad referencial:**
+- usuarios.id_sucursal → sucursales.id_sucursal (ON UPDATE CASCADE, ON DELETE CASCADE)
+- turnos.id_usuario → usuarios.id (ON UPDATE CASCADE, ON DELETE CASCADE)
+- turnos.id_sucursal → sucursales.id_sucursal (ON UPDATE CASCADE, ON DELETE CASCADE)
+- notificaciones.id_usuario → usuarios.id (ON UPDATE CASCADE, ON DELETE CASCADE)
+
+**Diagrama Entidad-Relación (ER):**
 
 ```
-┌─────────────────┐         ┌─────────────────┐         ┌──────────────────┐
-│  sucursales     │         │    usuarios     │         │     turnos       │
-├─────────────────┤         ├─────────────────┤         ├──────────────────┤
-│ id_sucursal (PK)│────┐    │ id (PK)         │         │ id (PK)          │
-│ nombre          │    │    │ id_sucursal(FK) │         │ id_usuario (FK)  │
-│ ubicacion       │    └───►│ nombre          │◄────┐   │ id_sucursal(FK)  │
-│ telefono        │         │ email (UNIQUE)  │     │   │ numero_turno     │
-└─────────────────┘         │ password        │     │   │ estado           │
-                            │ rol             │     │   │ fecha_creacion   │
-                            │ fecha_registro  │     │   │ actualizado_en   │
-                            └─────────────────┘     │   └──────────────────┘
-                                                    │
-                            ┌──────────────────┐    │
-                            │ notificaciones   │    │
-                            ├──────────────────┤    │
-                            │ id (PK)          │    │
-                            │ id_usuario (FK)  │────┘
-                            │ titulo           │
-                            │ mensaje          │
-                            │ leida            │
-                            │ fecha_envio      │
-                            └──────────────────┘
+┌──────────────────────┐
+│    sucursales        │
+├──────────────────────┤
+│ id_sucursal (PK)     │◄────┐
+│ nombre               │     │
+│ ubicacion            │     │
+│ telefono             │     │
+└──────────────────────┘     │
+         ▲                   │
+         │                   │
+    (1)──┼───(N)             │
+         │                   │
+    ┌────┴───────────────────┴────┐
+    │                             │
+┌───┴──────────────────┐    ┌─────┴───────────────┐
+│     usuarios         │    │      turnos         │
+├──────────────────────┤    ├─────────────────────┤
+│ id (PK)              │    │ id (PK)             │
+│ id_sucursal (FK)─────┼────┤ id_usuario (FK)     │
+│ nombre               │    │ id_sucursal (FK)────┤
+│ email (UNIQUE)       │    │ numero_turno        │
+│ password             │    │ estado              │
+│ rol                  │    │ fecha_creacion      │
+│ fecha_registro       │    │ actualizado_en      │
+└──────┬───────────────┘    └─────────────────────┘
+       │
+       │ (1)──(N)
+       │
+    ┌──┴──────────────────┐
+    │  notificaciones     │
+    ├─────────────────────┤
+    │ id (PK)             │
+    │ id_usuario (FK)─────┤
+    │ titulo              │
+    │ mensaje             │
+    │ leida               │
+    │ fecha_envio         │
+    └─────────────────────┘
 ```
 
 ----------
 
-### 7.5 Datos de Prueba Incluidos
+### 7.6 Datos de Prueba Incluidos
 
 El esquema incluye datos de prueba para facilitar el desarrollo y testing:
 
+**Sucursales (3 registros):**
+- Costa Verde (La Chorrera, Panamá Oeste) - 507-800-0001 [id: 1]
+- Panamá (Ave. Balboa, Ciudad de Panamá) - 507-800-0002 [id: 2]
+- Chiriquí (David, Provincia de Chiriquí) - 507-800-0003 [id: 3]
+
 **Usuarios (5 registros):**
-- Administrador: admin@turnofacil.com (rol: admin)
-- 4 clientes de prueba con emails y contraseñas básicas
+- Administrador (sucursal 1): admin@turnofacil.com [rol: admin]
+- Juan Pérez (sucursal 1): juan.perez@email.com [rol: cliente]
+- María García (sucursal 2): maria.garcia@email.com [rol: cliente]
+- Carlos López (sucursal 3): carlos.lopez@email.com [rol: cliente]
+- Ana Martínez (sucursal 2): ana.martinez@email.com [rol: cliente]
 
 **Turnos (5 registros):**
-- Estados variados: pendiente, completado, cancelado
-- Ejemplos de números: A12, B05, C18, A25, D09
+- A12 (usuario 2, sucursal 1) - pendiente
+- B05 (usuario 3, sucursal 2) - pendiente
+- C18 (usuario 4, sucursal 3) - completado
+- A25 (usuario 5, sucursal 2) - pendiente
+- D09 (usuario 2, sucursal 1) - cancelado----------
 
-**Sucursales (3 registros):**
-- Costa Verde (La Chorrera, Panamá Oeste) - 507-800-0001
-- Panamá (Ave. Balboa, Ciudad de Panamá) - 507-800-0002
-- Chiriquí (David, Provincia de Chiriquí) - 507-800-0003----------
+### 7.7 Orden de Creación de Tablas
 
-## 8. Características Implementadas
+Es importante respetar el siguiente orden para evitar errores de integridad referencial:
+
+1. **sucursales** - Sin dependencias
+2. **usuarios** - Depende de sucursales
+3. **turnos** - Depende de usuarios y sucursales
+4. **notificaciones** - Depende de usuarios
+
+### 7.8 Notas de Implementación
+
+- **Integridad referencial:** Todas las relaciones utilizan `ON UPDATE CASCADE` y `ON DELETE CASCADE`
+- **números de turno:** Campo `VARCHAR(50)` permite números con letras (A01, B05, etc.)
+- **Sucursales:** Se crean primero en los inserts de prueba
+- **Usuarios:** Cada usuario está asignado a una sucursal específica
+- **Turnos:** Registran tanto el usuario como la sucursal para facilitar consultas y reportes
 
 -   Navegación mediante Intents
     
