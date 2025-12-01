@@ -322,15 +322,15 @@ usuarios (1) <--> (N) notificaciones
 │ ubicacion       │    └───►│ nombre          │◄────┐   │ id_sucursal(FK)  │
 │ telefono        │         │ email (UNIQUE)  │     │   │ numero_turno     │
 └─────────────────┘         │ password        │     │   │ estado           │
-                             │ rol             │     │   │ fecha_creacion   │
-                             │ fecha_registro  │     │   │ actualizado_en   │
-                             └─────────────────┘     │   └──────────────────┘
-                                                     │
-                            ┌──────────────────┐     │
-                            │ notificaciones   │     │
-                            ├──────────────────┤     │
-                            │ id (PK)          │     │
-                            │ id_usuario (FK)  │─────┘
+                            │ rol             │     │   │ fecha_creacion   │
+                            │ fecha_registro  │     │   │ actualizado_en   │
+                            └─────────────────┘     │   └──────────────────┘
+                                                    │
+                            ┌──────────────────┐    │
+                            │ notificaciones   │    │
+                            ├──────────────────┤    │
+                            │ id (PK)          │    │
+                            │ id_usuario (FK)  │────┘
                             │ titulo           │
                             │ mensaje          │
                             │ leida            │
