@@ -247,13 +247,16 @@ MainActivity
 
 ## 7. Modelo de Base de Datos
 
-Aunque la aplicación aún no implementa persistencia real, el diseño propuesto contempla una base de datos relacional compuesta por tres tablas principales:
+La aplicación utiliza una base de datos relacional compuesta por cuatro tablas principales: usuarios, turnos, notificaciones y sucursales.
+
+**Base de datos:** turno_facil
 
 ### 7.1 Tabla usuarios
 
 | Campo           | Tipo                    | Descripción              |
 |-----------------|-------------------------|--------------------------|
 | id              | INT PK AI               | Identificador único      |
+| id_sucursal     | INT FK                  | Sucursal asignada        |
 | nombre          | VARCHAR(100)            | Nombre del usuario       |
 | email           | VARCHAR(255) UNIQUE     | Correo único             |
 | password        | VARCHAR(255)            | Hash de contraseña       |
@@ -268,35 +271,91 @@ Aunque la aplicación aún no implementa persistencia real, el diseño propuesto
 |----------------|-------------------------------------------|---------------------------|
 | id             | INT PK AI                                  | ID del turno              |
 | id_usuario     | INT FK                                     | Usuario dueño del turno   |
-| numero_turno   | VARCHAR(50)                                | Código del turno          |
+| id_sucursal    | INT FK                                     | Sucursal del turno        |
+| numero_turno   | VARCHAR(50)                                | Código del turno (A01, B02, etc.) |
 | estado         | ENUM(pendiente, cancelado, completado)     | Estado del turno          |
-| fecha_hora     | DATETIME                                   | Fecha programada          |
 | fecha_creacion | DATETIME                                   | Fecha de creación         |
-
-
+| actualizado_en | DATETIME ON UPDATE                         | Última actualización      |
 ----------
 
 ### 7.3 Tabla notificaciones
+
 | Campo        | Tipo              | Descripción                  |
 |--------------|-------------------|------------------------------|
 | id           | INT PK AI         | ID de la notificación        |
 | id_usuario   | INT FK            | Usuario destinatario         |
 | titulo       | VARCHAR(100)      | Título del mensaje           |
 | mensaje      | VARCHAR(255)      | Contenido del mensaje        |
-| leida        | BOOLEAN           | Indicador de lectura         |
+| leida        | BOOLEAN           | Indicador de lectura (0=no, 1=sí) |
 | fecha_envio  | DATETIME          | Fecha de envío               |
 
+----------
+
+### 7.4 Tabla sucursales
+
+| Campo       | Tipo              | Descripción                  |
+|-------------|-------------------|------------------------------|
+| id_sucursal | INT PK AI         | Identificador único          |
+| nombre      | VARCHAR(120)      | Nombre de la sucursal        |
+| ubicacion   | VARCHAR(255)      | Dirección                    |
+| telefono    | VARCHAR(20)       | Teléfono de contacto         |
 
 ----------
 
 ### Relaciones del modelo
 
 ```
+sucursales (1) <--> (N) usuarios
+sucursales (1) <--> (N) turnos
 usuarios (1) <--> (N) turnos
 usuarios (1) <--> (N) notificaciones
 ```
 
+**Diagrama Entidad-Relación:**
+
+```
+┌─────────────────┐         ┌─────────────────┐         ┌──────────────────┐
+│  sucursales     │         │    usuarios     │         │     turnos       │
+├─────────────────┤         ├─────────────────┤         ├──────────────────┤
+│ id_sucursal (PK)│────┐    │ id (PK)         │         │ id (PK)          │
+│ nombre          │    │    │ id_sucursal(FK) │         │ id_usuario (FK)  │
+│ ubicacion       │    └───►│ nombre          │◄────┐   │ id_sucursal(FK)  │
+│ telefono        │         │ email (UNIQUE)  │     │   │ numero_turno     │
+└─────────────────┘         │ password        │     │   │ estado           │
+                             │ rol             │     │   │ fecha_creacion   │
+                             │ fecha_registro  │     │   │ actualizado_en   │
+                             └─────────────────┘     │   └──────────────────┘
+                                                     │
+                            ┌──────────────────┐     │
+                            │ notificaciones   │     │
+                            ├──────────────────┤     │
+                            │ id (PK)          │     │
+                            │ id_usuario (FK)  │─────┘
+                            │ titulo           │
+                            │ mensaje          │
+                            │ leida            │
+                            │ fecha_envio      │
+                            └──────────────────┘
+```
+
 ----------
+
+### 7.5 Datos de Prueba Incluidos
+
+El esquema incluye datos de prueba para facilitar el desarrollo y testing:
+
+**Usuarios (5 registros):**
+- Administrador: admin@turnofacil.com (rol: admin)
+- 4 clientes de prueba con emails y contraseñas básicas
+
+**Turnos (5 registros):**
+- Estados variados: pendiente, completado, cancelado
+- Ejemplos de números: A12, B05, C18, A25, D09
+
+**Sucursales (3 registros):**
+- Costa Verde (La Chorrera, Panamá Oeste) - 507-800-0001
+- Panamá (Ave. Balboa, Ciudad de Panamá) - 507-800-0002
+- Chiriquí (David, Provincia de Chiriquí) - 507-800-0003----------
 
 ## 8. Características Implementadas
 
