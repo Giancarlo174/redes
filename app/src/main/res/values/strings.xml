@@ -1,20 +1,32 @@
 <resources>
+    <!-- Pantalla de inicio -->
     <string name="app_name">Turno Fácil</string>
-    <string name="button_customer">Soy Cliente</string>
-    <string name="button_employee">Soy Empleado</string>
+    <string name="slogan">Gestiona turnos de forma eficiente</string>
+    <string name="button_login">Ingresar</string>
     <string name="login_title">Inicio de Sesión</string>
     <string name="email_hint">Correo electrónico</string>
     <string name="password_hint">Contraseña</string>
-    <string name="login_button">Iniciar Sesión</string>
+
+    <!-- Panel del administrador -->
     <string name="admin_title">Panel del Administrador</string>
     <string name="call_next_button">Llamar Siguiente</string>
     <string name="cancel_turn_button">Cancelar Turno</string>
-    <string name="your_turn_title">Su Turno</string>
+    <string name="stat_waiting">En espera</string>
+    <string name="stat_attended">Atendidos</string>
+    <string name="stat_canceled">Cancelados</string>
+    <string name="stat_total">Total</string>
+
+
+    <!-- Pantalla de ticket -->
+    <string name="your_turn_title">Su número de turno es</string>
     <string name="turn_number_placeholder">A-101</string>
     <string name="info_label">Información:</string>
-    <string name="info_content_placeholder">- Será llamado en el mostrador 3.</string>
-    <string name="time_label">Tiempo estimado de espera:</string>
-    <string name="time_value_placeholder">15 minutos</string>
-    <string name="change_language_button">Idioma</string>
+    <string name="info_content_placeholder">⏰ Faltan 3 turnos para su atención</string>
+    <string name="status_content_placeholder">En atención</string>
+    <string name="new_button">Tomar un nuevo turno</string>
+
+    <!-- Generación de ticket -->
     <string name="generate_ticket">Generar Ticket</string>
+    <string name="take_turn">Tomar Turno</string>
+    <string name="slogan2">Evita hacer fila. Presiona el botón y obtén tu número de turno.</string>
 </resources>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="4dp"
+    app:cardBackgroundColor="@android:color/white"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <!-- Número de turno -->
+        <TextView
+            android:id="@+id/textViewHistoryTurnNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:textColor="#2C3E50"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text="A12" />
+
+        <!-- Hora -->
+        <TextView
+            android:id="@+id/textViewHistoryTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="16dp"
+            android:textColor="#7F8C8D"
+            android:textSize="14sp"
+            tools:text="04:20 p. m." />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <!-- Estado badge -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardStatusBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            app:cardBackgroundColor="#FFF9E6"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp">
+
+            <TextView
+                android:id="@+id/textViewHistoryStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp"
+                android:text="En espera"
+                android:textColor="#F39C12"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                tools:text="En espera" />
+        </androidx.cardview.widget.CardView>
+
+        <!-- Botón cancelar (solo visible para turnos en espera) -->
+        <ImageButton
+            android:id="@+id/buttonCancelTurn"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Cancelar turno"
+            android:src="@android:drawable/ic_delete"
+            android:tint="#E74C3C"
+            android:visibility="visible" />
+
+        <!-- Ícono de check (solo visible para turnos atendidos) -->
+        <ImageView
+            android:id="@+id/imageCheckmark"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="8dp"
+            android:contentDescription="Atendido"
+            android:src="@android:drawable/checkbox_on_background"
+            android:tint="#1ABC9C"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
