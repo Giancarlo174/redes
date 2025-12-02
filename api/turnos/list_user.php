@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
     
     // Obtener los turnos del usuario específico
-    $query = "SELECT t.id, t.numero_turno, t.estado, t.fecha_creacion, t.actualizado_en
+    $query = "SELECT t.id, t.numero_turno, t.estado, t.fecha_creacion, t.actualizado_en, t.id_sucursal
               FROM turnos t
               WHERE t.id_usuario = :id_usuario AND DATE(t.fecha_creacion) = :fecha
               ORDER BY t.fecha_creacion DESC";
@@ -34,13 +34,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $turnos[] = $row;
     }
     
-    // Obtener el turno actualmente en atención (si existe)
+    $idSucursalUsuario = null;
+    if (!empty($turnos)) {
+        $idSucursalUsuario = $turnos[0]['id_sucursal'];
+    }
+
+    // Obtener el turno actualmente en atención (si existe) - Filtrar por sucursal si aplica
     $queryEnAtencion = "SELECT numero_turno FROM turnos 
                         WHERE estado = 'completado' 
-                        AND DATE(fecha_creacion) = :fecha 
-                        ORDER BY actualizado_en DESC LIMIT 1";
+                        AND DATE(fecha_creacion) = :fecha";
+    
+    if ($idSucursalUsuario) {
+        $queryEnAtencion .= " AND id_sucursal = :id_sucursal";
+    }
+    
+    $queryEnAtencion .= " ORDER BY actualizado_en DESC LIMIT 1";
+
     $stmtEnAtencion = $db->prepare($queryEnAtencion);
     $stmtEnAtencion->bindParam(":fecha", $fecha);
+    if ($idSucursalUsuario) {
+        $stmtEnAtencion->bindParam(":id_sucursal", $idSucursalUsuario);
+    }
     $stmtEnAtencion->execute();
     $turnoEnAtencion = $stmtEnAtencion->fetch(PDO::FETCH_ASSOC);
     
@@ -53,9 +67,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                              WHERE estado = 'pendiente' 
                              AND fecha_creacion < :fecha_turno 
                              AND DATE(fecha_creacion) = :fecha";
+            
+            if ($idSucursalUsuario) {
+                $queryPosicion .= " AND id_sucursal = :id_sucursal";
+            }
+
             $stmtPosicion = $db->prepare($queryPosicion);
             $stmtPosicion->bindParam(":fecha_turno", $primerTurno['fecha_creacion']);
             $stmtPosicion->bindParam(":fecha", $fecha);
+            if ($idSucursalUsuario) {
+                $stmtPosicion->bindParam(":id_sucursal", $idSucursalUsuario);
+            }
             $stmtPosicion->execute();
             $result = $stmtPosicion->fetch(PDO::FETCH_ASSOC);
             $posicionEnCola = (int)$result['posicion'];

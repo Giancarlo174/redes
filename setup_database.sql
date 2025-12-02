@@ -151,7 +151,9 @@ CREATE TABLE IF NOT EXISTS notificaciones (
 INSERT INTO sucursales (nombre, ubicacion, telefono) VALUES
 ('Costa Verde', 'La Chorrera, Panamá Oeste', '507-800-0001'),
 ('Panamá', 'Ave. Balboa, Ciudad de Panamá', '507-800-0002'),
-('Chiriquí', 'David, Provincia de Chiriquí', '507-800-0003');
+('Chiriquí', 'David, Provincia de Chiriquí', '507-800-0003'),
+('Todos', 'Todas las sucursales', '507-800-0000');
+
 
 -- ============================================
 --  INSERTAR DATOS DE PRUEBA - USUARIOS

@@ -55,7 +55,7 @@ class CustomerActivity : AppCompatActivity() {
     
     private fun initViews() {
         titleTextView = findViewById(R.id.textView)
-        titleTextView.text = "Hola, $userName"
+        titleTextView.text = "Bienvenido, $userName!"
         
         textViewTurnNumber = findViewById(R.id.textViewTurnNumber)
         textViewYourTurn = findViewById(R.id.textViewYourTurn)
@@ -93,10 +93,16 @@ class CustomerActivity : AppCompatActivity() {
                     // Limpiar y agregar turnos del usuario
                     turnsList.clear()
                     
+                    var userSucursalId = -1
+                    
                     for (i in 0 until turnosArray.length()) {
                         val turno = turnosArray.getJSONObject(i)
                         val numeroTurno = turno.getString("numero_turno")
                         val estado = turno.getString("estado")
+                        
+                        if (i == 0) {
+                            userSucursalId = turno.optInt("id_sucursal", -1)
+                        }
                         
                         val statusText = when (estado) {
                             "pendiente" -> "En espera"
@@ -135,18 +141,32 @@ class CustomerActivity : AppCompatActivity() {
                         textViewInfoContent.text = "No tienes turnos activos"
                     }
                     
-                    // Agregar el turno actualmente en atención al inicio de la lista
+                    // Manejar el turno actualmente en atención
                     if (turnoEnAtencion != null) {
-                        turnsList.add(0, Turn(
-                            id = 0,
-                            turnNumber = turnoEnAtencion,
-                            status = "En atención",
-                            isAttending = true
-                        ))
+                        // Buscar si ya existe en la lista
+                        val existingIndex = turnsList.indexOfFirst { it.turnNumber == turnoEnAtencion }
+                        
+                        if (existingIndex != -1) {
+                            // Si existe, lo movemos al principio y actualizamos su estado
+                            val existingTurn = turnsList.removeAt(existingIndex)
+                            val updatedTurn = existingTurn.copy(
+                                status = "En atención",
+                                isAttending = true
+                            )
+                            turnsList.add(0, updatedTurn)
+                        } else {
+                            // Si no existe, lo agregamos al principio
+                            turnsList.add(0, Turn(
+                                id = 0,
+                                turnNumber = turnoEnAtencion,
+                                status = "En atención",
+                                isAttending = true
+                            ))
+                        }
                     }
                     
                     // Agregar turnos pendientes de otros usuarios para contexto
-                    loadOtherTurns()
+                    loadOtherTurns(userSucursalId)
                     
                     turnAdapter.notifyDataSetChanged()
                 }
@@ -157,10 +177,15 @@ class CustomerActivity : AppCompatActivity() {
         }
     }
     
-    private suspend fun loadOtherTurns() {
+    private suspend fun loadOtherTurns(sucursalId: Int) {
         try {
+            var url = "/turnos/list.php?estado=pendiente"
+            if (sucursalId != -1) {
+                url += "&id_sucursal=$sucursalId"
+            }
+            
             val response = withContext(Dispatchers.IO) {
-                ApiClient.get("/turnos/list.php?estado=pendiente")
+                ApiClient.get(url)
             }
             
             if (response.getBoolean("success")) {

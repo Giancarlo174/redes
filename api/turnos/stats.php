@@ -8,6 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $db = $database->getConnection();
     
     $fecha = isset($_GET['fecha']) ? $_GET['fecha'] : date('Y-m-d');
+    $idSucursal = isset($_GET['id_sucursal']) ? $_GET['id_sucursal'] : null;
     
     $query = "SELECT 
                 COUNT(CASE WHEN estado = 'pendiente' THEN 1 END) as en_espera,
@@ -16,9 +17,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 COUNT(*) as total
               FROM turnos 
               WHERE DATE(fecha_creacion) = :fecha";
+
+    if ($idSucursal && $idSucursal != -1) {
+        $query .= " AND id_sucursal = :id_sucursal";
+    }
     
     $stmt = $db->prepare($query);
     $stmt->bindParam(":fecha", $fecha);
+
+    if ($idSucursal && $idSucursal != -1) {
+        $stmt->bindParam(":id_sucursal", $idSucursal);
+    }
+
     $stmt->execute();
     
     $stats = $stmt->fetch(PDO::FETCH_ASSOC);

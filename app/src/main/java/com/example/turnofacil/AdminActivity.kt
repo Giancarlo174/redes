@@ -5,7 +5,10 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -32,11 +35,15 @@ class AdminActivity : AppCompatActivity() {
     private lateinit var buttonCallNext: Button
     private lateinit var recyclerViewHistory: RecyclerView
     private lateinit var fabExit: FloatingActionButton
+    private lateinit var spinnerSucursales: Spinner
 
     private val historyList = mutableListOf<TurnHistoryItem>()
     private lateinit var historyAdapter: TurnHistoryAdapter
     private var currentTurnId: Int? = null
     private var currentTurnNumber: String? = null
+    
+    private var selectedSucursalId: Int = -1
+    private val sucursalesList = mutableListOf<Sucursal>()
 
     private val handler = Handler(Looper.getMainLooper())
     private val refreshInterval = 3000L // 3 segundos
@@ -48,6 +55,7 @@ class AdminActivity : AppCompatActivity() {
         initViews()
         setupRecyclerView()
         setupListeners()
+        loadSucursales()
         loadData()
         startAutoRefresh()
     }
@@ -62,6 +70,54 @@ class AdminActivity : AppCompatActivity() {
         buttonCallNext = findViewById(R.id.buttonCallNext)
         recyclerViewHistory = findViewById(R.id.recyclerViewHistory)
         fabExit = findViewById(R.id.floatingActionButton3)
+        spinnerSucursales = findViewById(R.id.spinnerSucursales)
+    }
+
+    private fun loadSucursales() {
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                val response = ApiClient.get("/sucursales/list.php")
+                
+                if (response.getBoolean("success")) {
+                    val data = response.getJSONArray("data")
+                    sucursalesList.clear()
+                    
+                    val sucursalesNames = mutableListOf<String>()
+                    
+                    for (i in 0 until data.length()) {
+                        val item = data.getJSONObject(i)
+                        val id = item.getInt("id")
+                        val nombre = item.getString("nombre")
+                        sucursalesList.add(Sucursal(id, nombre))
+                        sucursalesNames.add(nombre)
+                    }
+                    
+                    val adapter = ArrayAdapter(this@AdminActivity, android.R.layout.simple_spinner_item, sucursalesNames)
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                    spinnerSucursales.adapter = adapter
+                    
+                    spinnerSucursales.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                            val selectedSucursal = sucursalesList[position]
+                            
+                            // Si es "Todos", usamos -1 para no filtrar
+                            selectedSucursalId = if (selectedSucursal.nombre.equals("Todos", ignoreCase = true)) {
+                                -1
+                            } else {
+                                selectedSucursal.id
+                            }
+                            
+                            loadData()
+                        }
+
+                        override fun onNothingSelected(parent: AdapterView<*>?) {}
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("AdminActivity", "Error loading branches: ${e.message}")
+                Toast.makeText(this@AdminActivity, "Error al cargar sucursales", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun setupRecyclerView() {
@@ -87,7 +143,12 @@ class AdminActivity : AppCompatActivity() {
     private fun loadStatistics() {
         CoroutineScope(Dispatchers.Main).launch {
             try {
-                val response = ApiClient.get("/turnos/stats.php")
+                var url = "/turnos/stats.php"
+                if (selectedSucursalId != -1) {
+                    url += "?id_sucursal=$selectedSucursalId"
+                }
+                
+                val response = ApiClient.get(url)
                 
                 if (response.getBoolean("success")) {
                     val data = response.getJSONObject("data")
@@ -105,7 +166,12 @@ class AdminActivity : AppCompatActivity() {
     private fun loadTurnsList() {
         CoroutineScope(Dispatchers.Main).launch {
             try {
-                val response = ApiClient.get("/turnos/list.php")
+                var url = "/turnos/list.php"
+                if (selectedSucursalId != -1) {
+                    url += "?id_sucursal=$selectedSucursalId"
+                }
+                
+                val response = ApiClient.get(url)
                 
                 if (response.getBoolean("success")) {
                     val turnosArray = response.getJSONArray("data")
@@ -237,5 +303,10 @@ class AdminActivity : AppCompatActivity() {
         val time: String,
         var status: String,
         val userName: String = ""
+    )
+    
+    data class Sucursal(
+        val id: Int,
+        val nombre: String
     )
 }

@@ -38,11 +38,14 @@
         app:tint="#1ABC9C" />
 
     <!-- Icon Circle -->
+
+    <!-- Title -->
+
     <View
         android:id="@+id/circleBackground"
         android:layout_width="120dp"
         android:layout_height="120dp"
-        android:layout_marginTop="120dp"
+        android:layout_marginTop="28dp"
         android:background="@drawable/circle_background"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -57,9 +60,9 @@
         app:layout_constraintEnd_toEndOf="@+id/circleBackground"
         app:layout_constraintStart_toStartOf="@+id/circleBackground"
         app:layout_constraintTop_toTopOf="@+id/circleBackground"
+        app:layout_constraintVertical_bias="0.486"
         app:tint="#1ABC9C" />
 
-    <!-- Title -->
     <TextView
         android:id="@+id/textViewTitle"
         android:layout_width="wrap_content"
