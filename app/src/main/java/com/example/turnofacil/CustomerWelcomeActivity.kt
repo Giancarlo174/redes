@@ -15,7 +15,8 @@ import org.json.JSONObject
 class CustomerWelcomeActivity : BaseActivity() {
     
     private lateinit var editTextNombre: TextInputEditText
-    private lateinit var editTextCedula: TextInputEditText
+    private lateinit var editTextEmail: TextInputEditText
+    private lateinit var editTextPassword: TextInputEditText
     private lateinit var buttonTakeTurn: Button
     private lateinit var fabExit: FloatingActionButton
     
@@ -24,20 +25,22 @@ class CustomerWelcomeActivity : BaseActivity() {
         setContentView(R.layout.activity_customer_welcome)
 
         editTextNombre = findViewById(R.id.editTextNombre)
-        editTextCedula = findViewById(R.id.editTextCedula)
+        editTextEmail = findViewById(R.id.editTextEmail)
+        editTextPassword = findViewById(R.id.editTextPassword)
         buttonTakeTurn = findViewById(R.id.buttonTakeTurn)
         fabExit = findViewById(R.id.fabExit)
 
         buttonTakeTurn.setOnClickListener {
             val nombre = editTextNombre.text.toString().trim()
-            val cedula = editTextCedula.text.toString().trim()
+            val email = editTextEmail.text.toString().trim()
+            val password = editTextPassword.text.toString().trim()
             
-            if (nombre.isEmpty() || cedula.isEmpty()) {
-                Toast.makeText(this, "Por favor completa todos los campos", Toast.LENGTH_SHORT).show()
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Por favor completa email y contraseña", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             
-            crearTurno(nombre, cedula)
+            crearTurno(nombre, email, password)
         }
 
         fabExit.setOnClickListener {
@@ -45,14 +48,15 @@ class CustomerWelcomeActivity : BaseActivity() {
         }
     }
     
-    private fun crearTurno(nombre: String, cedula: String) {
+    private fun crearTurno(nombre: String, email: String, password: String) {
         buttonTakeTurn.isEnabled = false
         
         CoroutineScope(Dispatchers.Main).launch {
             try {
                 val jsonBody = JSONObject().apply {
                     put("nombre", nombre)
-                    put("cedula", cedula)
+                    put("email", email)
+                    put("password", password)
                 }
                 
                 val response = ApiClient.post("/turnos/create.php", jsonBody)
