@@ -11,7 +11,7 @@ Turno Fácil es una aplicación móvil Android diseñada para gestionar turnos e
     
 -   Package: com.example.turnofacil
     
--   Versión: 1.0
+-   Versión: 2.1
     
 -   Lenguajes usados: Kotlin, Java y PHP
     
@@ -192,197 +192,20 @@ redes/
 
 ## 5. Componentes Principales
 
-### 5.1 MainActivity
+| Componente | Descripción | Características v2.1 |
+|---|---|---|
+| **MainActivity** | Pantalla inicial de navegación | Selecciona Login/Welcome, cambio de idioma (setLocale) |
+| **BaseActivity** | Clase base para Activities | Maneja comportamiento común del botón atrás |
+| **LoginActivity** | Autenticación (email+password) | Valida credenciales contra API, redirección por rol |
+| **AdminActivity** (Kotlin) | Panel admin para gestores | **Spinner** sucursales, **estadísticas dinámicas**, auto-refresh Handler(3s) |
+| **CustomerWelcomeActivity** | Generador turno sin registro | Nombre+Cédula → usuario automático; **v2.1:** selector sucursal, validación pendiente |
+| **CustomerActivity** | Panel cliente autenticado | Muestra turnos personales; **v2.1:** auto-refresh Handler(5s), filtro sucursal |
+| **Turn** | Data class | id, turnNumber, status, isAttending, fechas |
+| **TurnAdapter** | RecyclerView adapter | Infla items, estilos por estado, maneja clicks |
+| **TurnHistoryAdapter** | Adapter historial | Muestra completados/cancelados con fechas |
+| **ApiClient** | Singleton HTTP cliente | POST/GET/PUT, JSON handling, Coroutines, logging |
 
-Pantalla principal de la aplicación. Desde aquí el usuario puede seleccionar su tipo de acceso y cambiar el idioma del sistema.
-
-**Funciones principales:**
-
--   Navegación a LoginActivity (para usuarios registrados)
-    
--   Navegación a CustomerWelcomeActivity (para tomar turno sin registro)
-    
--   Cambio dinámico de idioma mediante setLocale()
-
-**Cambios recientes:**
-- Se agregó flujo de autenticación
-- Separación entre usuarios registrados y no registrados
-    
-
-----------
-
-### 5.2 BaseActivity
-
-Clase abstracta utilizada por algunas Activities para unificar el comportamiento del botón "Atrás" en la ActionBar.
-
-----------
-
-### 5.3 LoginActivity
-
-Pantalla de autenticación para usuarios registrados (clientes y administradores).
-
-**Funciones:**
-
--   Validación de credenciales mediante API REST
-    
--   Autenticación con email y contraseña
-    
--   Redirección automática según rol (admin o cliente)
-    
--   Manejo de errores de conexión
-    
--   Feedback visual durante el proceso de login
-
-**Implementación técnica:**
-```kotlin
-// Conexión con backend PHP
-val jsonBody = JSONObject().apply {
-    put("email", email)
-    put("password", password)
-}
-val response = ApiClient.post("/auth/login.php", jsonBody)
-```
-
-----------
-
-### 5.4 AdminActivity
-
-Pantalla destinada a los administradores del sistema.
-
-**Funciones:**
-
--   Gestionar turnos activos mediante API REST
-    
--   Ver estadísticas en tiempo real (en espera, atendidos, cancelados)
-    
--   Llamar al siguiente turno
-    
--   Cancelar turnos
-    
--   Actualización automática de datos desde el servidor
-    
--   Interfaz basada en Material Design
-    
-
-**Cambios recientes:**
-- Migrado de Java a Kotlin
-- Integración con backend PHP
-- Obtención de datos en tiempo real desde MySQL
-
-----------
-
-### 5.5 CustomerWelcomeActivity
-
-Pantalla para clientes que desean tomar turno sin registro previo.
-
-**Funciones:**
-
--   Solicitar nombre y cédula
-    
--   Generar turno automáticamente
-    
--   Crear usuario temporal con credenciales automáticas
-    
--   Mostrar número de turno asignado
-    
--   Consultar posición en la cola
-
-**Flujo de creación:**
-- Email: `[cedula]@turno.facil.com`
-- Password: mismo valor que la cédula
-- Rol: automáticamente `cliente`
-
-----------
-
-### 5.6 CustomerActivity
-
-Pantalla destinada a los clientes autenticados que consultan sus turnos.
-
-**Funciones:**
-
--   Mostrar lista de turnos personales mediante RecyclerView
-    
--   Ver turnos desde backend (históricos y actuales)
-    
--   Mostrar turno en atención actual
-    
--   Mostrar posición en la cola
-    
--   Destacar visualmente los turnos en espera y el turno actual
-    
--   Actualización en tiempo real desde API REST
-    
-
-----------
-
-### 5.7 Turn (Modelo)
-
-Clase de datos que representa un turno dentro de la aplicación.
-
-```kotlin
-data class Turn(
-    val id: Int,
-    val turnNumber: String,
-    val status: String,
-    val isAttending: Boolean = false,
-    val fecha_creacion: String? = null,
-    val actualizado_en: String? = null
-)
-```
-
-----------
-
-### 5.8 TurnAdapter
-
-Adaptador utilizado para mostrar la lista de turnos en CustomerActivity.
-
-**Responsabilidades:**
-
--   Inflar elementos de lista
-    
--   Asignar datos de Turn a cada vista
-    
--   Aplicar estilos visuales según el estado del turno
-    
--   Gestionar eventos de click en items
-
-----------
-
-### 5.9 TurnHistoryAdapter
-
-Adaptador para mostrar el historial de turnos del usuario.
-
-**Responsabilidades:**
-
--   Mostrar turnos completados y cancelados
-    
--   Formato de fechas
-    
--   Indicadores visuales de estado
-
-----------
-
-### 5.10 ApiClient
-
-Clase singleton para comunicación HTTP con el backend PHP.
-
-**Funciones:**
-
--   Métodos POST, GET y PUT
-    
--   Manejo de JSON para request/response
-    
--   Gestión de errores de conexión
-    
--   Logging de peticiones
-    
--   Uso de Coroutines para operaciones asíncronas
-
-**Configuración:**
-```kotlin
-private const val BASE_URL = "http://10.0.2.2/redes/api" // Emulador
-// Para dispositivo real: "http://192.168.x.x/redes/api"
-```
+**ApiClient URL:** `http://10.0.2.2/redes/api` (emulador), `http://localhost/redes/api` (local), `http://[IP]/redes/api` (dispositivo real)
     
 
 ----------
@@ -391,153 +214,45 @@ private const val BASE_URL = "http://10.0.2.2/redes/api" // Emulador
 
 ```
 MainActivity
- ├── "Tomar Turno" → CustomerWelcomeActivity → Generar turno sin registro
- └── "Ingresar" → LoginActivity
-      ├── Usuario con rol "admin" → AdminActivity
-      │    └── Gestión de turnos y estadísticas
-      └── Usuario con rol "cliente" → CustomerActivity
-           └── Consulta de turnos personales
+ ├─ "Tomar Turno" → CustomerWelcomeActivity (sin registro)
+ └─ "Ingresar" → LoginActivity → Admin/Cliente
+      ├─ AdminActivity (todos los turnos, estadísticas, filtro sucursal)
+      └─ CustomerActivity (turnos personales, historial)
 ```
 
-**Descripción detallada:**
-
-1.  **Inicio de la aplicación:**
-    -   La app inicia en MainActivity
-    -   Usuario elige entre "Tomar Turno" (sin registro) o "Ingresar" (con autenticación)
-
-2.  **Flujo sin registro (CustomerWelcomeActivity):**
-    -   Ingresa nombre y cédula
-    -   El sistema crea usuario automático
-    -   Se genera turno y muestra número asignado
-    -   Puede consultar posición en cola
-
-3.  **Flujo con autenticación (LoginActivity):**
-    -   Usuario ingresa email y contraseña
-    -   API valida credenciales contra MySQL
-    -   Redirección automática según rol:
-        - **Admin**: AdminActivity (gestión completa)
-        - **Cliente**: CustomerActivity (consulta personal)
-
-4.  **Panel de Administrador (AdminActivity):**
-    -   Ve todos los turnos en tiempo real
-    -   Puede llamar siguiente turno
-    -   Puede cancelar turnos
-    -   Ve estadísticas actualizadas
-    -   Datos desde backend PHP
-
-5.  **Panel de Cliente (CustomerActivity):**
-    -   Ve sus turnos personales
-    -   Ve turno en atención actual
-    -   Consulta su posición en cola
-    -   Historial de turnos anteriores
-    
-6.  **Botón Atrás:**
-    -   Todas las pantallas secundarias permiten regresar
+| Flujo | Pasos | Resultado |
+|---|---|---|
+| **Sin registro** | Nombre+Cédula → SelectSucursal → ValidarPendiente | Crear usuario automático + Turno + Posición cola |
+| **Con autenticación** | Email+Password → ApiValidate | Redirección por rol (admin/cliente) |
+| **Admin** | LoginActivity → AdminActivity | Ve todos turnos (tiempo real), estadísticas dinámicas, filtro sucursal |
+| **Cliente** | LoginActivity → CustomerActivity | Ve sus turnos, en atención actual, posición cola, historial |
     
 
 ----------
 
 ## 7. Backend API REST (PHP)
 
-La aplicación cuenta con un backend desarrollado en PHP que proporciona servicios REST para la gestión de turnos y autenticación.
+**Tech Stack:** PHP 7.4+, MySQL 5.7+, XAMPP (Apache+PHP+MySQL)
 
-### 7.1 Configuración del Backend
+**Instalación rápida:**
+1. XAMPP → C:\xampp\htdocs\redes\
+2. Importar `setup_database.sql` en phpMyAdmin
+3. URLs: Local `http://localhost/redes/api/` | Emulador `http://10.0.2.2/redes/api/` | Dispositivo real `http://[TU_IP]/redes/api/`
 
-**Requisitos:**
-- XAMPP (Apache + MySQL + PHP 7.4+)
-- MySQL 5.7 o superior
-- Puerto 80 disponible para Apache
+### 7.1 Endpoints (8 total) y Credenciales
 
-**Instalación:**
-1. Instalar XAMPP
-2. Copiar carpeta `api/` en `c:\xampp\htdocs\redes\`
-3. Importar `setup_database.sql` en phpMyAdmin
-4. Configurar credenciales en `api/config/database.php`
-5. Iniciar Apache y MySQL desde XAMPP Control Panel
+| Endpoint | Método | Parámetros | v2.1 | User | Pass |
+|---|---|---|---|---|---|
+| `/auth/login.php` | POST | email, password | - | admin@turnofacil.com | admin123 |
+| `/turnos/create.php` | POST | nombre, cedula, id_sucursal | ✨ Valida pendiente | juan.perez@email.com | pass123 |
+| `/turnos/list.php` | GET | estado, fecha, id_sucursal | ✨ Filtro sucursal | maria.garcia@email.com | pass123 |
+| `/turnos/list_user.php` | GET | id_usuario, id_sucursal | ✨ Filtro sucursal | carlos.lopez@email.com | pass123 |
+| `/turnos/update.php` | PUT | turno_data | - | auto@turno.facil.com | cedula |
+| `/turnos/stats.php` | GET | fecha, id_sucursal | ✨ Filtro sucursal | | |
+| `/sucursales/list.php` | GET | - | ✨ NEW ENDPOINT | | |
+| `/auth/logout.php` | POST | - | - | | |
 
-**URL Base:**
-- Local: `http://localhost/redes/api/`
-- Emulador Android: `http://10.0.2.2/redes/api/`
-- Dispositivo real: `http://[TU_IP_LOCAL]/redes/api/`
-
-### 7.2 Endpoints Disponibles
-
-#### Autenticación
-
-**POST** `/auth/login.php`
-
-Autentica usuarios (admin o cliente) y retorna datos del usuario.
-
-**Request:**
-```json
-{
-  "email": "admin@turnofacil.com",
-  "password": "admin123"
-}
-```
-
-**Response exitosa:**
-```json
-{
-  "success": true,
-  "message": "Login exitoso",
-  "data": {
-    "id": 1,
-    "nombre": "Administrador",
-    "email": "admin@turnofacil.com",
-    "rol": "admin"
-  }
-}
-```
-
-#### Gestión de Turnos
-
-**POST** `/turnos/create.php` - Crear nuevo turno
-
-**GET** `/turnos/list.php?estado=pendiente&fecha=2025-11-30` - Listar turnos
-
-**GET** `/turnos/list_user.php?id_usuario=1` - Turnos de usuario específico
-
-**PUT** `/turnos/update.php` - Actualizar estado de turno
-
-**GET** `/turnos/stats.php?fecha=2025-11-30` - Estadísticas del día
-
-### 7.3 Credenciales de Prueba
-
-**Administrador:**
-- Email: `admin@turnofacil.com`
-- Password: `admin123`
-- Rol: `admin`
-
-**Clientes de prueba:**
-- Email: `juan.perez@email.com` / Password: `pass123`
-- Email: `maria.garcia@email.com` / Password: `pass123`
-- Email: `carlos.lopez@email.com` / Password: `pass123`
-- Rol: `cliente`
-
-**Clientes automáticos:**
-Al tomar turno sin registro, se crea automáticamente:
-- Email: `[cedula]@turno.facil.com`
-- Password: valor de la cédula
-- Rol: `cliente`
-
-### 7.4 Estructura del Backend
-
-```
-api/
-├── auth/
-│   └── login.php           # Autenticación de usuarios
-├── config/
-│   └── database.php        # Conexión a MySQL
-└── turnos/
-    ├── create.php          # Crear turno
-    ├── list.php            # Listar todos los turnos
-    ├── list_user.php       # Turnos de un usuario
-    ├── update.php          # Actualizar estado
-    └── stats.php           # Estadísticas
-```
-
-Para documentación completa de la API, ver: `API_DOCUMENTATION.md`
+**Estructura:** `api/auth/{login,logout}.php`, `api/config/database.php`, `api/sucursales/list.php`, `api/turnos/{create,list,list_user,update,stats}.php`
 
 ----------
 
@@ -663,10 +378,11 @@ usuarios (1) <--> (N) notificaciones
 
 El esquema incluye datos de prueba para facilitar el desarrollo y testing:
 
-**Sucursales (3 registros):**
+**Sucursales (4 registros):**
 - Costa Verde (La Chorrera, Panamá Oeste) - 507-800-0001 [id: 1]
 - Panamá (Ave. Balboa, Ciudad de Panamá) - 507-800-0002 [id: 2]
 - Chiriquí (David, Provincia de Chiriquí) - 507-800-0003 [id: 3]
+- **Todos** (Vista consolidada) - 507-800-0000 [id: 4] ✨ **NEW v2.1**
 
 **Usuarios (5 registros):**
 - Administrador (sucursal 1): admin@turnofacil.com [rol: admin]
@@ -699,316 +415,70 @@ Es importante respetar el siguiente orden para evitar errores de integridad refe
 - **Usuarios:** Cada usuario está asignado a una sucursal específica
 - **Turnos:** Registran tanto el usuario como la sucursal para facilitar consultas y reportes
 
-----------
-
 ## 9. Características Implementadas
 
-### Frontend (Android)
+| Componente | Estado | Features v2.1 |
+|---|---|---|
+| **Frontend (Android)** | ✅ Completo | Navegación Intents, Material Design, multi-idioma, RecyclerView, Coroutines, autenticación, auto-refresh (3s admin/5s cliente), filtro sucursal |
+| **Backend (PHP) - 8 endpoints** | ✅ Completo | API REST, MySQL, autenticación, CRUD turnos, estadísticas reales, prepared statements, JSON responses, validación pendiente, endpoint /sucursales/list.php |
 
--   ✅ Navegación mediante Intents
-    
--   ✅ Botón atrás funcional
-    
--   ✅ Diseño Material Design
-    
--   ✅ Soporte multi-idioma (español e inglés)
-    
--   ✅ RecyclerView con adaptadores personalizados
-    
--   ✅ Vista mejorada para turno en atención
-    
--   ✅ Estructura del proyecto clara y modular
-    
--   ✅ Uso de data classes y ViewHolder Pattern
+---
 
--   ✅ Sistema de autenticación con backend
+## 10. Configuración e Instalación
 
--   ✅ Cliente HTTP con ApiClient (Coroutines)
+**Requisitos:** Android Studio (JDK 11, SDK 24-36), XAMPP (Apache+MySQL+PHP 7.4+)
 
--   ✅ Gestión de turnos en tiempo real
-
--   ✅ Actualización automática desde API REST
-
--   ✅ Manejo de errores de conexión
-
--   ✅ Feedback visual con Toast messages
-
-### Backend (PHP + MySQL)
-
--   ✅ API REST completa con 7 endpoints
-
--   ✅ Autenticación de usuarios
-
--   ✅ CRUD de turnos
-
--   ✅ Estadísticas en tiempo real
-
--   ✅ Gestión de roles (admin/cliente)
-
--   ✅ Creación automática de usuarios temporales
-
--   ✅ Consultas optimizadas con prepared statements
-
--   ✅ Respuestas JSON estandarizadas
-
--   ✅ Manejo de errores y validaciones
-    
-
-----------
-
-## 10. Configuración del Proyecto
-
-### build.gradle.kts (resumen)
-
+**Backend Setup:**
 ```
-android {
-    namespace = "com.example.turnofacil"
-    compileSdk = 36
-
-    defaultConfig {
-        applicationId = "com.example.turnofacil"
-        minSdk = 24
-        targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-
-    kotlinOptions {
-        jvmTarget = "11"
-    }
-}
-
+1. C:\xampp\htdocs\redes\api  (copiar carpeta api)
+2. phpMyAdmin: Importar setup_database.sql
+3. Apache + MySQL: correr desde XAMPP Control Panel
+4. Test: http://localhost/redes/api/turnos/stats.php
 ```
 
-### Dependencias principales
-
--   androidx.core:core-ktx
-    
--   androidx.appcompat
-    
--   material
-    
--   constraintlayout
-    
--   recyclerview
-    
--   cardview
-
--   **kotlinx-coroutines-android:1.7.3** (nuevo - para operaciones asíncronas)
-    
-
-----------
-
-## 11. Guía de Compilación
-
-### Requisitos previos
-
-**Para Android:**
--   Instalar Android Studio
-    
--   Instalar JDK 11
-    
--   Tener las SDK necesarias (API 24–36)
-
-**Para Backend:**
--   XAMPP instalado (Apache + MySQL + PHP)
-
--   Puerto 80 disponible
-
--   phpMyAdmin para gestionar base de datos
-    
-
-### Pasos
-
-**1. Configurar el Backend:**
-
-a. Instalar XAMPP y ejecutarlo
-
-b. Copiar carpeta `api/` a `c:\xampp\htdocs\redes\`
-
-c. Abrir phpMyAdmin: `http://localhost/phpmyadmin`
-
-d. Crear base de datos: Importar `setup_database.sql`
-
-e. Verificar que Apache y MySQL estén corriendo
-
-f. Probar endpoint: `http://localhost/redes/api/turnos/stats.php`
-
-**2. Configurar la App Android:**
-
-a. Clonar el repositorio
-    
-```bash
-git clone https://github.com/Giancarlo174/redes.git
-cd redes
-git checkout dev
+**Android Setup:**
 ```
-    
-b. Abrir en Android Studio
-    
-c. Sincronizar Gradle
-
-d. Configurar URL en `ApiClient.kt`:
-   - Emulador: `http://10.0.2.2/redes/api`
-   - Dispositivo real: `http://[TU_IP]/redes/api`
-
-e. Ejecutar la app en dispositivo o emulador
-
-**3. Verificar conexión:**
-
-- Login con: `admin@turnofacil.com` / `admin123`
-- Si hay error de conexión, verificar que Apache esté corriendo
-- Verificar firewall si usas dispositivo real
-    
-
-### Generar APK
-
+1. git clone && git checkout dev
+2. Gradle sync
+3. ApiClient.kt: Configurar BASE_URL según entorno
+4. Run en emulador (10.0.2.2) o dispositivo real ([IP])
 ```
-./gradlew assembleDebug
-./gradlew assembleRelease
 
-```
+**APK Build:** `./gradlew assembleDebug` | `./gradlew assembleRelease`
+
+**Dependencias principales:** AndroidX, Material, ConstraintLayout, RecyclerView, **Coroutines 1.7.3**
 
 ----------
 
 ## 11. Internacionalización
 
-Se soportan dos idiomas: español e inglés.
-
-Archivos involucrados:
-
--   res/values/strings.xml (ES)
-    
--   res/values-en/strings.xml (EN)
-    
-
-Cambio dinámico de idioma mediante:
-
-```
-private fun setLocale(languageCode: String) {
-    val locale = Locale(languageCode)
-    Locale.setDefault(locale)
-    val config = Configuration()
-    config.setLocale(locale)
-    baseContext.resources.updateConfiguration(config, baseContext.resources.displayMetrics)
-    recreate()
-}
-
-```
+**Idiomas:** Español (values/strings.xml), Inglés (values-en/strings.xml)
+**Cambio dinámico:** `setLocale(lang)` → `Locale.setDefault()` + `config.setLocale()` + `recreate()`
 
 ----------
 
-## 13. Mejoras Futuras
+## 12. Mejoras Futuras
 
-### Backend
-
--   ~~Implementación de API REST~~ ✅ Completado
-    
--   Autenticación con JWT (actualmente basic auth)
-    
--   ~~Persistencia real en MySQL~~ ✅ Completado
-
--   Implementar tokens de sesión
-
--   Rate limiting para prevenir abuso
-
--   Logs de auditoría
-    
-
-### Funcionalidad de negocio
-
--   Algoritmo automático de asignación de turnos
-    
--   Notificaciones push
-    
--   Gestión de prioridades
-    
--   Estadísticas avanzadas
-    
-
-### Arquitectura
-
--   Migración a MVVM
-    
--   Uso de ViewModel y LiveData
-    
--   Repository Pattern
-    
--   Navigation Component
-    
-
-### UI/UX
-
--   Animaciones
-    
--   Modo oscuro completo
-    
--   Accesibilidad mejorada
-    
-
-### Testing
-
--   Tests unitarios
-    
--   Tests de integración
-    
--   Tests UI con Espresso
-    
+**Backend:** JWT auth, tokens sesión, rate limiting, logs auditoría
+**Negocio:** Auto-asignación turnos, push notifications, prioridades, analíticas
+**Arquitectura:** MVVM, ViewModel, Repository Pattern, Navigation Component
+**UI/UX:** Animaciones, dark mode, accesibilidad mejorada
+**Testing:** Tests unitarios, integración, UI (Espresso)
 
 ----------
 
-## 13. Mantenimiento y Soporte
+## 13. Mantenimiento
 
-Comandos útiles:
-
-```
-./gradlew clean
-./gradlew test
-./gradlew dependencies
-./gradlew dependencyUpdates
-
-```
-
-Herramientas de depuración:
-
--   Logcat
-    
--   Android Profiler
-    
--   Layout Inspector
-    
-
-Versionado:
-
--   Se utiliza SemVer (MAJOR.MINOR.PATCH)
-    
+**Gradle:** `clean`, `test`, `dependencies`, `dependencyUpdates`
+**Debug:** Logcat, Android Profiler, Layout Inspector
+**Versionado:** SemVer (MAJOR.MINOR.PATCH)
 
 ----------
 
-## 14. Contacto y Contribuciones
+## 14. Contribuciones
 
--   Repositorio: redes
-    
--   Owner: Giancarlo174
-    
--   Rama principal: main
-    
-
-Pasos para contribuir:
-
-1.  Crear un fork
-    
-2.  Crear una nueva rama
-    
-3.  Realizar cambios y hacer commit
-    
-4.  Enviar pull request
-    
+Repositorio: `redes` | Owner: `Giancarlo174` | Rama principal: `main`
+**Pasos:** Fork → Branch → Changes → Commit → PR
 
 ----------
 
@@ -1043,10 +513,11 @@ Pasos para contribuir:
 
 | Versión | Fecha       | Rama | Cambios                                                      |
 |---------|-------------|------|--------------------------------------------------------------|
+| 2.1     | 02/12/2025  | dev  | **Validaciones y Multi-sucursal:** Validación de turno pendiente, desplegable de sucursales en AdminActivity, auto-refresh (3s admin/5s cliente), filtrado por sucursal en todos endpoints, nuevo endpoint /sucursales/list.php, UI mejorada |
 | 2.0     | 30/11/2025  | dev  | **Backend completo:** API REST PHP, autenticación, LoginActivity, CustomerWelcomeActivity, ApiClient, Coroutines, integración MySQL, 7 endpoints REST, migración AdminActivity a Kotlin |
 | 1.2     | 17/11/2025  | main | Implementación de RecyclerView, TurnAdapter, modelo Turn, migración de AdminActivity a Java, tabla sucursales |
 | 1.1     | 11/11/2025  | main | Definición del modelo completo de base de datos (4 tablas)  |
 | 1.0     | 11/11/2025  | main | Versión inicial del proyecto                                 |
 
-**Nota:** La versión 2.0 está en la rama `dev` y contiene la integración completa con backend PHP + MySQL.
+**Nota:** Las versiones 2.0+ están en la rama `dev` y contienen integración completa con backend PHP + MySQL.
 
