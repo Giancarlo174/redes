@@ -74,6 +74,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Si tenemos userId, generamos el turno
         if ($userId) {
+            // Verificar si el usuario ya tiene un turno pendiente
+            $pendingTurnQuery = "SELECT id, numero_turno FROM turnos WHERE id_usuario = :id_usuario AND estado = 'pendiente' LIMIT 1";
+            $pendingStmt = $db->prepare($pendingTurnQuery);
+            $pendingStmt->bindParam(":id_usuario", $userId);
+            $pendingStmt->execute();
+            
+            if ($pendingStmt->rowCount() > 0) {
+                $existingTurn = $pendingStmt->fetch(PDO::FETCH_ASSOC);
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Ya tienes un turno pendiente',
+                    'data' => [
+                        'turno_id' => $existingTurn['id'],
+                        'numero_turno' => $existingTurn['numero_turno'],
+                        'usuario_id' => $userId,
+                        'nombre' => $userName,
+                        'email' => $email
+                    ]
+                ]);
+                exit;
+            }
+
             // Generar número de turno
             $turnoQuery = "SELECT COUNT(*) as total FROM turnos WHERE DATE(fecha_creacion) = CURDATE()";
             $turnoStmt = $db->prepare($turnoQuery);
