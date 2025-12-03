@@ -65,8 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         if ($primerTurno['estado'] === 'pendiente') {
             $queryPosicion = "SELECT COUNT(*) as posicion FROM turnos 
                              WHERE estado = 'pendiente' 
-                             AND fecha_creacion < :fecha_turno 
-                             AND DATE(fecha_creacion) = :fecha";
+                             AND fecha_creacion < :fecha_turno";
             
             if ($idSucursalUsuario) {
                 $queryPosicion .= " AND id_sucursal = :id_sucursal";
@@ -74,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
             $stmtPosicion = $db->prepare($queryPosicion);
             $stmtPosicion->bindParam(":fecha_turno", $primerTurno['fecha_creacion']);
-            $stmtPosicion->bindParam(":fecha", $fecha);
+            // $stmtPosicion->bindParam(":fecha", $fecha); // Removed date constraint
             if ($idSucursalUsuario) {
                 $stmtPosicion->bindParam(":id_sucursal", $idSucursalUsuario);
             }

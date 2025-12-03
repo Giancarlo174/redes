@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 COUNT(CASE WHEN estado = 'cancelado' THEN 1 END) as cancelados,
                 COUNT(*) as total
               FROM turnos 
-              WHERE DATE(fecha_creacion) = :fecha";
+              WHERE (DATE(fecha_creacion) = :fecha OR DATE(actualizado_en) = :fecha OR estado = 'pendiente')";
 
     if ($idSucursal && $idSucursal != -1) {
         $query .= " AND id_sucursal = :id_sucursal";

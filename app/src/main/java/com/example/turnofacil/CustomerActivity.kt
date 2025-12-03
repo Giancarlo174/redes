@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -226,9 +227,67 @@ class CustomerActivity : AppCompatActivity() {
         handler.postDelayed(object : Runnable {
             override fun run() {
                 loadTurnsData()
+                checkNotifications()
                 handler.postDelayed(this, refreshInterval)
             }
         }, refreshInterval)
+    }
+    
+    private fun checkNotifications() {
+        if (userId == -1) return
+        
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                val response = withContext(Dispatchers.IO) {
+                    ApiClient.get("/notificaciones/check.php?id_usuario=$userId")
+                }
+                
+                if (response.getBoolean("success") && !response.isNull("notification")) {
+                    val notification = response.getJSONObject("notification")
+                    val titulo = notification.getString("titulo")
+                    val mensaje = notification.getString("mensaje")
+                    // val tipo = notification.getString("tipo") // Puede usarse para cambiar iconos/colores
+                    
+                    showNotificationDialog(titulo, mensaje)
+                }
+            } catch (e: Exception) {
+                Log.e("CustomerActivity", "Error checking notifications: ${e.message}")
+            }
+        }
+    }
+    
+    private fun showNotificationDialog(title: String, message: String) {
+        val dialogBuilder = androidx.appcompat.app.AlertDialog.Builder(this)
+        val inflater = this.layoutInflater
+        val dialogView = inflater.inflate(R.layout.dialog_notification, null)
+        dialogBuilder.setView(dialogView)
+        
+        val dialog = dialogBuilder.create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        
+        val textTitle = dialogView.findViewById<TextView>(R.id.textViewTitle)
+        val textMessage = dialogView.findViewById<TextView>(R.id.textViewMessage)
+        val btnDismiss = dialogView.findViewById<Button>(R.id.buttonDismiss)
+        val iconView = dialogView.findViewById<android.widget.ImageView>(R.id.imageViewIcon)
+        
+        textTitle.text = title
+        textMessage.text = message
+        
+        // Personalizar icono/color según el título
+        if (title.contains("Atendido", ignoreCase = true)) {
+            iconView.setColorFilter(ContextCompat.getColor(this, R.color.green))
+        } else if (title.contains("Siguiente", ignoreCase = true)) {
+            iconView.setColorFilter(ContextCompat.getColor(this, R.color.grey_blue)) // O un color ámbar si existe
+        } else if (title.contains("Cancelado", ignoreCase = true)) {
+            iconView.setColorFilter(ContextCompat.getColor(this, R.color.softred))
+            textTitle.setTextColor(ContextCompat.getColor(this, R.color.softred))
+        }
+        
+        btnDismiss.setOnClickListener {
+            dialog.dismiss()
+        }
+        
+        dialog.show()
     }
     
     override fun onDestroy() {

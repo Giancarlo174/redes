@@ -8,6 +8,7 @@
     <color name="softgreenborder">#B2DFDB</color>
     <color name="white">#FFFFFF</color>
     <color name="light_grey_border">#E0E0E0</color>
+    <color name="softred">#FFCDD2</color>
     <color name="red">#D32F2F</color>
     <color name="blue">#1976D2</color>
 </resources>

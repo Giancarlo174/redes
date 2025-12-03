@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
               FROM turnos t
               INNER JOIN usuarios u ON t.id_usuario = u.id
               LEFT JOIN sucursales s ON t.id_sucursal = s.id_sucursal
-              WHERE (DATE(t.fecha_creacion) = :fecha OR t.estado = 'pendiente')";
+              WHERE (DATE(t.fecha_creacion) = :fecha OR DATE(t.actualizado_en) = :fecha OR t.estado = 'pendiente')";
     
     if ($estado) {
         $query .= " AND t.estado = :estado";
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $query .= " AND t.id_sucursal = :id_sucursal";
     }
     
-    $query .= " ORDER BY t.fecha_creacion ASC";
+    $query .= " ORDER BY CASE WHEN t.estado = 'pendiente' THEN 0 ELSE 1 END, t.fecha_creacion ASC";
     
     $stmt = $db->prepare($query);
     $stmt->bindParam(":fecha", $fecha);
