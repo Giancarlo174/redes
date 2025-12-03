@@ -21,12 +21,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Obtener los turnos del usuario específico
     $query = "SELECT t.id, t.numero_turno, t.estado, t.fecha_creacion, t.actualizado_en, t.id_sucursal
               FROM turnos t
-              WHERE t.id_usuario = :id_usuario AND DATE(t.fecha_creacion) = :fecha
-              ORDER BY t.fecha_creacion DESC";
+              WHERE t.id_usuario = :id_usuario 
+              ORDER BY t.fecha_creacion DESC LIMIT 50";
     
     $stmt = $db->prepare($query);
     $stmt->bindParam(":id_usuario", $id_usuario);
-    $stmt->bindParam(":fecha", $fecha);
+    // $stmt->bindParam(":fecha", $fecha); // Ya no se usa en esta consulta
     $stmt->execute();
     
     $turnos = [];

@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
               FROM turnos t
               INNER JOIN usuarios u ON t.id_usuario = u.id
               LEFT JOIN sucursales s ON t.id_sucursal = s.id_sucursal
-              WHERE DATE(t.fecha_creacion) = :fecha";
+              WHERE (DATE(t.fecha_creacion) = :fecha OR t.estado = 'pendiente')";
     
     if ($estado) {
         $query .= " AND t.estado = :estado";

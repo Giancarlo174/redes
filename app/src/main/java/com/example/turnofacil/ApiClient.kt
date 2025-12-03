@@ -54,7 +54,11 @@ object ApiClient {
             connection.requestMethod = "GET"
             connection.setRequestProperty("Content-Type", "application/json")
 
-            val reader = BufferedReader(InputStreamReader(connection.inputStream))
+            val responseCode = connection.responseCode
+            val reader = BufferedReader(InputStreamReader(
+                if (responseCode == HttpURLConnection.HTTP_OK) connection.inputStream
+                else connection.errorStream
+            ))
             val response = reader.readText()
             reader.close()
 
